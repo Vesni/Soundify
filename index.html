@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Soundify</title>
-  <link rel="icon" type="image/ico" href="favicon.ico">
-  <script src="/_sdk/element_sdk.js"></script>
-  <script src="/_sdk/data_sdk.js"></script><!-- Firebase SDKs -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico"><!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script><!-- Google Sign-In -->
@@ -838,9 +836,6 @@
         }
         
         .update-log-toggle {
-            position: fixed;
-            top: 24px;
-            right: 120px;
             background-color: #1db954;
             color: white;
             border: none;
@@ -849,7 +844,6 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            z-index: 999;
             transition: all 0.2s;
         }
         
@@ -1180,6 +1174,8 @@
         }
     </style>
   <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
   <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
  </head>
  <body><!-- Authentication Screen -->
@@ -1229,14 +1225,14 @@
        <svg width="16" height="16" viewbox="0 0 24 24" fill="currentColor"><path d="M9 18l6-6-6-6" />
        </svg></button>
      </div>
-     <div class="user-menu">
+     <div class="user-menu"><button class="update-log-toggle" onclick="toggleUpdateLog()"> 📋 Updates </button>
       <div class="online-counter">
        <div class="online-dot"></div><span id="online-count">42</span> online
-      </div><button class="upgrade-btn">Upgrade</button>
-      <div class="user-avatar" onclick="signOut()"><span id="user-initial">U</span>
+      </div><button class="upgrade-btn" onclick="openUpgradeModal()"> <span id="upgrade-text">Upgrade</span> </button>
+      <div class="user-avatar" onclick="openProfileModal()"><span id="user-initial">U</span>
       </div>
      </div>
-    </div><!-- Update Log Toggle Button --> <button class="update-log-toggle" onclick="toggleUpdateLog()"> 📋 Updates </button> <!-- Update Log Panel -->
+    </div><!-- Update Log Panel -->
     <div id="update-log" class="update-log">
      <div class="update-log-header">
       <div class="update-log-title">
@@ -1496,9 +1492,83 @@
      </div>
      <div class="form-group"><label class="form-label">Description (Optional)</label> <input type="text" id="playlist-description" class="form-input" placeholder="Add a description">
      </div>
+     <div class="form-group"><label class="form-label">Privacy</label> <select id="playlist-privacy" class="form-input"> <option value="private">🔒 Private - Only you can see this</option> <option value="public">🌍 Public - Everyone can see this</option> </select>
+     </div>
      <div class="button-group"><button type="button" class="btn btn-secondary" onclick="closeCreatePlaylistModal()"> Cancel </button> <button type="submit" class="btn btn-primary"> Create </button>
      </div>
     </form>
+   </div>
+  </div><!-- Profile Modal -->
+  <div id="profile-modal" class="modal hidden">
+   <div class="modal-content">
+    <h3 class="modal-title">Profile Settings</h3>
+    <form id="profile-form">
+     <div class="form-group"><label class="form-label">Display Name</label> <input type="text" id="profile-name" class="form-input" placeholder="Your Name">
+     </div>
+     <div class="form-group"><label class="form-label">Bio</label> <textarea id="profile-bio" class="form-input" placeholder="Tell us about yourself..." rows="3"></textarea>
+     </div>
+     <div class="form-group"><label class="form-label">Favorite Genre</label> <select id="profile-genre" class="form-input"> <option value="Electronic">Electronic</option> <option value="Pop">Pop</option> <option value="Rock">Rock</option> <option value="Hip-Hop">Hip-Hop</option> <option value="Jazz">Jazz</option> <option value="Classical">Classical</option> </select>
+     </div>
+     <div class="form-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background-color: #181818; border-radius: 8px; margin-bottom: 16px;">
+       <div>
+        <div style="font-weight: 600; color: #1db954;">
+         Account Status
+        </div>
+        <div style="color: #b3b3b3; font-size: 14px;" id="account-status">
+         Free Plan - 4 hours daily limit
+        </div>
+       </div>
+       <div style="color: #1db954; font-weight: bold;" id="usage-time">
+        0h used today
+       </div>
+      </div>
+     </div>
+     <div class="button-group"><button type="button" class="btn btn-secondary" onclick="closeProfileModal()"> Cancel </button> <button type="button" class="btn" style="background-color: #ff4757; color: white;" onclick="signOut()"> Sign Out </button> <button type="submit" class="btn btn-primary"> Save Changes </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Upgrade Modal -->
+  <div id="upgrade-modal" class="modal hidden">
+   <div class="modal-content" style="max-width: 500px;">
+    <h3 class="modal-title">🚀 Upgrade to Premium</h3>
+    <div style="background: linear-gradient(135deg, #1db954, #1ed760); padding: 24px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
+     <h2 style="margin: 0 0 8px 0; font-size: 28px;">Soundify Premium</h2>
+     <p style="margin: 0; opacity: 0.9;">Unlimited music, unlimited possibilities</p>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+     <div style="padding: 20px; background-color: #181818; border-radius: 8px; border: 2px solid #282828;">
+      <h4 style="color: #b3b3b3; margin: 0 0 16px 0;">Free Plan</h4>
+      <div style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
+       $0<span style="font-size: 14px; color: #b3b3b3;">/month</span>
+      </div>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+       <li style="margin-bottom: 8px; color: #b3b3b3;">⏰ 4 hours daily limit</li>
+       <li style="margin-bottom: 8px; color: #b3b3b3;">📱 Basic features</li>
+       <li style="margin-bottom: 8px; color: #b3b3b3;">🎵 Limited playlists</li>
+      </ul>
+     </div>
+     <div style="padding: 20px; background-color: #181818; border-radius: 8px; border: 2px solid #1db954;">
+      <h4 style="color: #1db954; margin: 0 0 16px 0;">Premium Plan</h4>
+      <div style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
+       $9.99<span style="font-size: 14px; color: #b3b3b3;">/month</span>
+      </div>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+       <li style="margin-bottom: 8px; color: #1db954;">⏰ Unlimited listening</li>
+       <li style="margin-bottom: 8px; color: #1db954;">🎵 Unlimited playlists</li>
+       <li style="margin-bottom: 8px; color: #1db954;">🎨 Premium themes</li>
+       <li style="margin-bottom: 8px; color: #1db954;">🔊 High-quality audio</li>
+       <li style="margin-bottom: 8px; color: #1db954;">📱 Priority support</li>
+      </ul>
+     </div>
+    </div>
+    <div id="admin-upgrade-section" class="hidden" style="background-color: #ff4757; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+     <h4 style="margin: 0 0 12px 0; color: white;">🔐 Admin Controls</h4>
+     <div style="display: flex; gap: 12px;"><button class="btn" style="background-color: white; color: #ff4757;" onclick="grantPremium()"> Grant Premium </button> <button class="btn" style="background-color: rgba(255,255,255,0.2); color: white;" onclick="revokePremium()"> Revoke Premium </button>
+     </div>
+    </div>
+    <div class="button-group"><button type="button" class="btn btn-secondary" onclick="closeUpgradeModal()"> Maybe Later </button> <button type="button" class="btn btn-primary" onclick="upgradeToPremium()" id="upgrade-action-btn"> Upgrade Now </button>
+    </div>
    </div>
   </div>
   <script>
@@ -1546,9 +1616,27 @@
         let visualizerEnabled = false;
         let currentMoodFilter = 'all';
         
-        // Data SDK State
-        let dataSdkInitialized = false;
-        let persistentPlaylists = [];
+        // User Management
+        let userProfile = {
+            displayName: '',
+            bio: '',
+            favoriteGenre: 'Electronic',
+            isPremium: false,
+            dailyUsage: 0,
+            lastUsageReset: new Date().toDateString()
+        };
+        
+        // Admin users (only these emails can grant premium)
+        const adminEmails = [
+            'vesni277@gmail.com'
+        ];
+        
+        // Usage tracking
+        let usageStartTime = null;
+        let usageInterval = null;
+        
+        // Local storage state
+        let localStorageAvailable = true;
         
         // Update Log System
         const updateLog = [
@@ -1773,82 +1861,98 @@
                 document.getElementById('player-bar').classList.remove('hidden');
                 
                 // Set user initial
-                const initial = user.email.charAt(0).toUpperCase();
+                const initial = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
                 document.getElementById('user-initial').textContent = initial;
                 
-                // Load user data
+                // Load user data and profile
+                loadUserProfile();
                 loadUserPlaylists();
                 renderHomeContent();
+                updateUpgradeButton();
+                updateUsageDisplay();
+                
+                // Check if user is admin
+                if (adminEmails.includes(user.email)) {
+                    showToast('👑 Admin access detected - Premium controls available');
+                }
             } else {
                 currentUser = null;
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('hidden');
                 document.getElementById('player-bar').classList.add('hidden');
+                
+                // Stop usage tracking on sign out
+                stopUsageTracking();
             }
         });
 
-        // Data SDK Handler
-        const dataHandler = {
-            onDataChanged(data) {
-                persistentPlaylists = data;
-                playlists = data.filter(item => item.type === 'playlist');
-                renderPlaylists();
-                renderLibrary();
-                updateStats();
-            }
-        };
-        
-        // Initialize Data SDK
-        async function initializeDataSDK() {
-            if (window.dataSdk && !dataSdkInitialized) {
-                try {
-                    const result = await window.dataSdk.init(dataHandler);
-                    if (result.isOk) {
-                        dataSdkInitialized = true;
-                        showToast('💾 Data persistence enabled - Your playlists will be saved!');
-                    } else {
-                        console.error('Failed to initialize Data SDK:', result.error);
-                    }
-                } catch (error) {
-                    console.error('Data SDK initialization error:', error);
-                }
+        // Fallback data handler for local storage
+        function savePlaylistsToLocal() {
+            try {
+                localStorage.setItem('soundify_playlists', JSON.stringify(playlists));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
             }
         }
         
-        // Firestore Functions (Fallback)
+        function loadPlaylistsFromLocal() {
+            try {
+                const saved = localStorage.getItem('soundify_playlists');
+                if (saved) {
+                    playlists = JSON.parse(saved);
+                    renderPlaylists();
+                    renderLibrary();
+                    updateStats();
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                playlists = [];
+            }
+        }
+        
+        // Load playlists function
         async function loadUserPlaylists() {
             if (!currentUser) return;
             
-            // Use Data SDK if available, otherwise fallback to Firestore
-            if (dataSdkInitialized) {
-                // Data is automatically loaded via onDataChanged
-                return;
-            }
+            // First load from localStorage
+            loadPlaylistsFromLocal();
             
+            // Then try to sync with Firestore
             try {
                 const snapshot = await db.collection('playlists')
                     .where('userId', '==', currentUser.uid)
                     .orderBy('createdAt', 'desc')
                     .get();
                 
-                playlists = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
+                const firestorePlaylists = snapshot.docs.map(doc => ({
+                    id: doc.data().id || doc.id,
+                    ...doc.data(),
+                    tracks: doc.data().tracks ? JSON.parse(doc.data().tracks) : []
                 }));
                 
-                renderPlaylists();
-                renderLibrary();
+                // Merge with local playlists (Firestore takes priority for conflicts)
+                const localIds = playlists.map(p => p.id);
+                const newFromFirestore = firestorePlaylists.filter(p => !localIds.includes(p.id));
+                
+                if (newFromFirestore.length > 0) {
+                    playlists = [...playlists, ...newFromFirestore];
+                    savePlaylistsToLocal();
+                    renderPlaylists();
+                    renderLibrary();
+                    updateStats();
+                }
             } catch (error) {
-                console.error('Error loading playlists:', error);
+                console.log('Firestore sync failed, using local storage only');
             }
         }
 
-        async function createPlaylist(name, description = '') {
+        async function createPlaylist(name, description = '', privacy = 'private') {
             if (!currentUser) return;
             
-            // Check data limit
-            if (persistentPlaylists.length >= 999) {
-                showToast('Maximum limit of 999 playlists reached. Please delete some playlists first.');
+            // Check data limit (free users limited to 10 playlists)
+            const maxPlaylists = userProfile.isPremium ? 50 : 10;
+            if (playlists.length >= maxPlaylists) {
+                showToast(`Maximum limit of ${maxPlaylists} playlists reached. ${!userProfile.isPremium ? 'Upgrade to Premium for more!' : 'Please delete some playlists first.'}`);
                 return;
             }
             
@@ -1856,30 +1960,36 @@
                 id: Date.now().toString(),
                 name: name,
                 description: description,
+                privacy: privacy,
                 userId: currentUser.uid,
-                tracks: JSON.stringify([]),
+                tracks: [],
                 createdAt: new Date().toISOString(),
                 type: 'playlist'
             };
             
             try {
-                if (dataSdkInitialized) {
-                    const result = await window.dataSdk.create(playlistData);
-                    if (result.isOk) {
-                        showToast(`✅ Playlist "${name}" created and saved!`);
-                    } else {
-                        showToast('❌ Error creating playlist: ' + result.error.message);
-                    }
-                } else {
-                    // Fallback to Firestore
+                // Add to local array
+                playlists.push(playlistData);
+                
+                // Save to localStorage
+                savePlaylistsToLocal();
+                
+                // Try to save to Firestore as backup
+                try {
                     await db.collection('playlists').add({
                         ...playlistData,
+                        tracks: JSON.stringify(playlistData.tracks),
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    showToast(`Playlist "${name}" created successfully!`);
-                    loadUserPlaylists();
+                } catch (firestoreError) {
+                    console.log('Firestore save failed, using local storage only');
                 }
+                
+                renderPlaylists();
+                renderLibrary();
+                updateStats();
+                showToast(`✅ Playlist "${name}" created and saved locally!`);
             } catch (error) {
                 showToast('Error creating playlist');
                 console.error('Error creating playlist:', error);
@@ -1890,22 +2000,30 @@
             if (!currentUser) return;
             
             try {
-                if (dataSdkInitialized) {
-                    const playlist = persistentPlaylists.find(p => p.id === playlistId || p.__backendId === playlistId);
-                    if (playlist) {
-                        const result = await window.dataSdk.delete(playlist);
-                        if (result.isOk) {
-                            showToast('✅ Playlist deleted successfully!');
-                        } else {
-                            showToast('❌ Error deleting playlist: ' + result.error.message);
-                        }
-                    }
-                } else {
-                    // Fallback to Firestore
-                    await db.collection('playlists').doc(playlistId).delete();
-                    showToast('Playlist deleted successfully!');
-                    loadUserPlaylists();
+                // Remove from local array
+                playlists = playlists.filter(p => p.id !== playlistId);
+                
+                // Save to localStorage
+                savePlaylistsToLocal();
+                
+                // Try to delete from Firestore as backup
+                try {
+                    const snapshot = await db.collection('playlists')
+                        .where('userId', '==', currentUser.uid)
+                        .where('id', '==', playlistId)
+                        .get();
+                    
+                    snapshot.docs.forEach(doc => {
+                        doc.ref.delete();
+                    });
+                } catch (firestoreError) {
+                    console.log('Firestore delete failed, using local storage only');
                 }
+                
+                renderPlaylists();
+                renderLibrary();
+                updateStats();
+                showToast('✅ Playlist deleted successfully!');
             } catch (error) {
                 showToast('Error deleting playlist');
                 console.error('Error deleting playlist:', error);
@@ -2057,6 +2175,9 @@
             }
             
             playlists.forEach(playlist => {
+                const privacyIcon = playlist.privacy === 'public' ? '🌍' : '🔒';
+                const privacyText = playlist.privacy === 'public' ? 'Public' : 'Private';
+                
                 const item = document.createElement('div');
                 item.className = 'card';
                 item.style.marginBottom = '16px';
@@ -2066,8 +2187,8 @@
                             📝
                         </div>
                         <div style="flex: 1;">
-                            <div class="card-title">${playlist.name}</div>
-                            <div class="card-subtitle">${playlist.description || 'Playlist'} • ${playlist.tracks?.length || 0} songs</div>
+                            <div class="card-title">${playlist.name} ${privacyIcon}</div>
+                            <div class="card-subtitle">${playlist.description || 'Playlist'} • ${playlist.tracks?.length || 0} songs • ${privacyText}</div>
                         </div>
                         <button onclick="deletePlaylist('${playlist.id}')" class="btn btn-secondary" style="padding: 8px 16px;">
                             Delete
@@ -2167,6 +2288,11 @@
 
         // Player Functions
         function playTrack(trackId) {
+            // Check usage limit for free users
+            if (!userProfile.isPremium && !startUsageTracking()) {
+                return; // Usage limit reached
+            }
+            
             const track = sampleTracks.find(t => t.id === trackId);
             if (!track) return;
             
@@ -2318,11 +2444,234 @@
             
             const name = document.getElementById('playlist-name').value.trim();
             const description = document.getElementById('playlist-description').value.trim();
+            const privacy = document.getElementById('playlist-privacy').value;
             
             if (!name) return;
             
-            await createPlaylist(name, description);
+            await createPlaylist(name, description, privacy);
             closeCreatePlaylistModal();
+        }
+        
+        // Usage Tracking Functions
+        function startUsageTracking() {
+            if (userProfile.isPremium) return; // Premium users have unlimited access
+            
+            // Reset daily usage if it's a new day
+            const today = new Date().toDateString();
+            if (userProfile.lastUsageReset !== today) {
+                userProfile.dailyUsage = 0;
+                userProfile.lastUsageReset = today;
+                saveUserProfile();
+            }
+            
+            // Check if user has exceeded daily limit
+            if (userProfile.dailyUsage >= 240) { // 4 hours = 240 minutes
+                showUsageLimitModal();
+                return false;
+            }
+            
+            usageStartTime = Date.now();
+            usageInterval = setInterval(() => {
+                if (usageStartTime) {
+                    const currentUsage = Math.floor((Date.now() - usageStartTime) / 60000); // minutes
+                    userProfile.dailyUsage += 1;
+                    
+                    updateUsageDisplay();
+                    saveUserProfile();
+                    
+                    // Check if limit reached
+                    if (userProfile.dailyUsage >= 240) {
+                        showUsageLimitModal();
+                        stopUsageTracking();
+                    }
+                }
+            }, 60000); // Update every minute
+            
+            return true;
+        }
+        
+        function stopUsageTracking() {
+            if (usageInterval) {
+                clearInterval(usageInterval);
+                usageInterval = null;
+            }
+            usageStartTime = null;
+        }
+        
+        function updateUsageDisplay() {
+            const hours = Math.floor(userProfile.dailyUsage / 60);
+            const minutes = userProfile.dailyUsage % 60;
+            const usageText = `${hours}h ${minutes}m used today`;
+            
+            const usageElement = document.getElementById('usage-time');
+            if (usageElement) {
+                usageElement.textContent = usageText;
+            }
+            
+            // Update account status
+            const statusElement = document.getElementById('account-status');
+            if (statusElement) {
+                if (userProfile.isPremium) {
+                    statusElement.textContent = 'Premium Plan - Unlimited access';
+                } else {
+                    const remaining = 240 - userProfile.dailyUsage;
+                    const remainingHours = Math.floor(remaining / 60);
+                    const remainingMinutes = remaining % 60;
+                    statusElement.textContent = `Free Plan - ${remainingHours}h ${remainingMinutes}m remaining today`;
+                }
+            }
+        }
+        
+        function showUsageLimitModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="text-align: center;">
+                    <h3 style="color: #ff4757; margin-bottom: 16px;">⏰ Daily Limit Reached</h3>
+                    <p style="margin-bottom: 24px; color: #b3b3b3;">You've used your 4-hour daily limit. Upgrade to Premium for unlimited listening!</p>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button class="btn btn-primary" onclick="openUpgradeModal(); this.parentElement.parentElement.parentElement.remove();">
+                            Upgrade to Premium
+                        </button>
+                        <button class="btn btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove();">
+                            Try Tomorrow
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Pause any playing music
+            if (isPlaying) {
+                togglePlayPause();
+            }
+        }
+        
+        // Profile Management
+        function saveUserProfile() {
+            try {
+                localStorage.setItem('soundify_profile', JSON.stringify(userProfile));
+            } catch (error) {
+                console.error('Error saving profile:', error);
+            }
+        }
+        
+        function loadUserProfile() {
+            try {
+                const saved = localStorage.getItem('soundify_profile');
+                if (saved) {
+                    userProfile = { ...userProfile, ...JSON.parse(saved) };
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+        
+        // Modal Functions
+        function openProfileModal() {
+            document.getElementById('profile-name').value = userProfile.displayName;
+            document.getElementById('profile-bio').value = userProfile.bio;
+            document.getElementById('profile-genre').value = userProfile.favoriteGenre;
+            updateUsageDisplay();
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+        
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+        
+        function openUpgradeModal() {
+            // Show admin controls if user is admin
+            const isAdmin = currentUser && adminEmails.includes(currentUser.email);
+            const adminSection = document.getElementById('admin-upgrade-section');
+            
+            if (isAdmin) {
+                adminSection.classList.remove('hidden');
+            } else {
+                adminSection.classList.add('hidden');
+            }
+            
+            // Update button text based on premium status
+            const upgradeBtn = document.getElementById('upgrade-action-btn');
+            if (userProfile.isPremium) {
+                upgradeBtn.textContent = 'Already Premium ✓';
+                upgradeBtn.disabled = true;
+                upgradeBtn.style.opacity = '0.6';
+            } else {
+                upgradeBtn.textContent = 'Upgrade Now';
+                upgradeBtn.disabled = false;
+                upgradeBtn.style.opacity = '1';
+            }
+            
+            document.getElementById('upgrade-modal').classList.remove('hidden');
+        }
+        
+        function closeUpgradeModal() {
+            document.getElementById('upgrade-modal').classList.add('hidden');
+        }
+        
+        // Premium Management (Admin Only)
+        function grantPremium() {
+            if (!currentUser || !adminEmails.includes(currentUser.email)) {
+                showToast('❌ Access denied - Admin privileges required');
+                return;
+            }
+            
+            userProfile.isPremium = true;
+            saveUserProfile();
+            updateUsageDisplay();
+            updateUpgradeButton();
+            showToast('✅ Premium access granted successfully!');
+            addUpdateLogEntry('GRANTED', 'updated', '👑 Admin granted Premium access to user');
+        }
+        
+        function revokePremium() {
+            if (!currentUser || !adminEmails.includes(currentUser.email)) {
+                showToast('❌ Access denied - Admin privileges required');
+                return;
+            }
+            
+            userProfile.isPremium = false;
+            saveUserProfile();
+            updateUsageDisplay();
+            updateUpgradeButton();
+            showToast('⚠️ Premium access revoked');
+            addUpdateLogEntry('REVOKED', 'updated', '👑 Admin revoked Premium access from user');
+        }
+        
+        function upgradeToPremium() {
+            if (userProfile.isPremium) {
+                showToast('✅ You already have Premium access!');
+                return;
+            }
+            
+            // In a real app, this would integrate with payment processing
+            showToast('💳 Payment processing not implemented in demo. Contact admin for Premium access.');
+        }
+        
+        function updateUpgradeButton() {
+            const upgradeText = document.getElementById('upgrade-text');
+            if (userProfile.isPremium) {
+                upgradeText.textContent = 'Premium ✓';
+                upgradeText.parentElement.style.background = 'linear-gradient(135deg, #1db954, #1ed760)';
+            } else {
+                upgradeText.textContent = 'Upgrade';
+                upgradeText.parentElement.style.background = 'white';
+            }
+        }
+        
+        // Profile Form Handler
+        async function handleProfileUpdate(event) {
+            event.preventDefault();
+            
+            userProfile.displayName = document.getElementById('profile-name').value.trim();
+            userProfile.bio = document.getElementById('profile-bio').value.trim();
+            userProfile.favoriteGenre = document.getElementById('profile-genre').value;
+            
+            saveUserProfile();
+            closeProfileModal();
+            showToast('✅ Profile updated successfully!');
+            addUpdateLogEntry('UPDATED', 'updated', '👤 User updated profile information');
         }
 
         // Utility Functions
@@ -2337,37 +2686,21 @@
             }, 3000);
         }
 
-        // Element SDK Integration
-        async function initializeElementSDK() {
-            if (window.elementSdk) {
-                await window.elementSdk.init({
-                    defaultConfig,
-                    onConfigChange: async (config) => {
-                        const logoText = document.querySelector('#app-logo .logo-text');
-                        const authTitleText = document.querySelector('#auth-title span');
-                        
-                        if (logoText) logoText.textContent = config.app_name || defaultConfig.app_name;
-                        if (authTitleText) authTitleText.textContent = config.app_name || defaultConfig.app_name;
-                        document.getElementById('welcome-title').textContent = config.welcome_message || defaultConfig.welcome_message;
-                    },
-                    mapToCapabilities: () => ({
-                        recolorables: [],
-                        borderables: [],
-                        fontEditable: undefined,
-                        fontSizeable: undefined
-                    }),
-                    mapToEditPanelValues: (config) => new Map([
-                        ["app_name", config.app_name || defaultConfig.app_name],
-                        ["welcome_message", config.welcome_message || defaultConfig.welcome_message]
-                    ])
-                });
-            }
+        // Configuration management (without Element SDK)
+        function updateAppConfig() {
+            const logoText = document.querySelector('#app-logo .logo-text');
+            const authTitleText = document.querySelector('#auth-title span');
+            
+            if (logoText) logoText.textContent = defaultConfig.app_name;
+            if (authTitleText) authTitleText.textContent = defaultConfig.app_name;
+            document.getElementById('welcome-title').textContent = defaultConfig.welcome_message;
         }
 
         // Event Listeners
         document.getElementById('auth-form').addEventListener('submit', handleAuth);
         document.getElementById('auth-toggle-link').addEventListener('click', toggleAuthMode);
         document.getElementById('playlist-form').addEventListener('submit', handleCreatePlaylist);
+        document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
 
         // Progress update interval
         setInterval(() => {
@@ -2699,10 +3032,10 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', async () => {
-            // Initialize SDKs
-            await initializeElementSDK();
-            await initializeDataSDK();
+            // Initialize configuration
+            updateAppConfig();
             loadYouTubeAPI();
+            loadUserProfile();
             updateStats();
             
             // Update online count every 30 seconds
@@ -2730,7 +3063,13 @@
                     }
                 });
             }
+            
+            // Show welcome message
+            const welcomeMsg = userProfile.isPremium ? 
+                '🎵 Welcome to Soundify Premium! Unlimited music awaits.' : 
+                '🎵 Welcome to Soundify! 4 hours of daily music streaming.';
+            showToast(welcomeMsg);
         });
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99441ad41420ccf4',t:'MTc2MTQyMDM3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99443684447dbd9b',t:'MTc2MTQyMTUxMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
