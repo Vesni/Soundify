@@ -1530,41 +1530,42 @@
    </div>
   </div><!-- Upgrade Modal -->
   <div id="upgrade-modal" class="modal hidden">
-   <div class="modal-content" style="max-width: 500px;">
+   <div class="modal-content" style="max-width: 420px;">
     <h3 class="modal-title">🚀 Upgrade to Premium</h3>
-    <div style="background: linear-gradient(135deg, #1db954, #1ed760); padding: 24px; border-radius: 12px; margin-bottom: 24px; text-align: center;">
-     <h2 style="margin: 0 0 8px 0; font-size: 28px;">Soundify Premium</h2>
-     <p style="margin: 0; opacity: 0.9;">Unlimited music, unlimited possibilities</p>
+    <div style="background: linear-gradient(135deg, #1db954, #1ed760); padding: 16px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+     <h2 style="margin: 0 0 4px 0; font-size: 20px;">Soundify Premium</h2>
+     <p style="margin: 0; opacity: 0.9; font-size: 14px;">Unlimited music, unlimited possibilities</p>
     </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-     <div style="padding: 20px; background-color: #181818; border-radius: 8px; border: 2px solid #282828;">
-      <h4 style="color: #b3b3b3; margin: 0 0 16px 0;">Free Plan</h4>
-      <div style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
-       $0<span style="font-size: 14px; color: #b3b3b3;">/month</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+     <div style="padding: 12px; background-color: #181818; border-radius: 6px; border: 1px solid #282828;">
+      <h4 style="color: #b3b3b3; margin: 0 0 8px 0; font-size: 14px;">Free Plan</h4>
+      <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">
+       $0<span style="font-size: 12px; color: #b3b3b3;">/month</span>
       </div>
-      <ul style="list-style: none; padding: 0; margin: 0;">
-       <li style="margin-bottom: 8px; color: #b3b3b3;">⏰ 4 hours daily limit</li>
-       <li style="margin-bottom: 8px; color: #b3b3b3;">📱 Basic features</li>
-       <li style="margin-bottom: 8px; color: #b3b3b3;">🎵 Limited playlists</li>
+      <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px;">
+       <li style="margin-bottom: 4px; color: #b3b3b3;">⏰ 4 hours daily</li>
+       <li style="margin-bottom: 4px; color: #b3b3b3;">📱 Basic features</li>
+       <li style="margin-bottom: 4px; color: #b3b3b3;">🎵 10 playlists max</li>
       </ul>
      </div>
-     <div style="padding: 20px; background-color: #181818; border-radius: 8px; border: 2px solid #1db954;">
-      <h4 style="color: #1db954; margin: 0 0 16px 0;">Premium Plan</h4>
-      <div style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
-       $9.99<span style="font-size: 14px; color: #b3b3b3;">/month</span>
+     <div style="padding: 12px; background-color: #181818; border-radius: 6px; border: 2px solid #1db954;">
+      <h4 style="color: #1db954; margin: 0 0 8px 0; font-size: 14px;">Premium Plan</h4>
+      <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">
+       $9.99<span style="font-size: 12px; color: #b3b3b3;">/month</span>
       </div>
-      <ul style="list-style: none; padding: 0; margin: 0;">
-       <li style="margin-bottom: 8px; color: #1db954;">⏰ Unlimited listening</li>
-       <li style="margin-bottom: 8px; color: #1db954;">🎵 Unlimited playlists</li>
-       <li style="margin-bottom: 8px; color: #1db954;">🎨 Premium themes</li>
-       <li style="margin-bottom: 8px; color: #1db954;">🔊 High-quality audio</li>
-       <li style="margin-bottom: 8px; color: #1db954;">📱 Priority support</li>
+      <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px;">
+       <li style="margin-bottom: 4px; color: #1db954;">⏰ Unlimited listening</li>
+       <li style="margin-bottom: 4px; color: #1db954;">🎵 Unlimited playlists</li>
+       <li style="margin-bottom: 4px; color: #1db954;">🎨 Premium themes</li>
+       <li style="margin-bottom: 4px; color: #1db954;">🔊 High-quality audio</li>
       </ul>
      </div>
     </div>
-    <div id="admin-upgrade-section" class="hidden" style="background-color: #ff4757; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-     <h4 style="margin: 0 0 12px 0; color: white;">🔐 Admin Controls</h4>
-     <div style="display: flex; gap: 12px;"><button class="btn" style="background-color: white; color: #ff4757;" onclick="grantPremium()"> Grant Premium </button> <button class="btn" style="background-color: rgba(255,255,255,0.2); color: white;" onclick="revokePremium()"> Revoke Premium </button>
+    <div id="admin-upgrade-section" class="hidden" style="background-color: #ff4757; padding: 12px; border-radius: 6px; margin-bottom: 12px;">
+     <h4 style="margin: 0 0 8px 0; color: white; font-size: 14px;">🔐 Admin Controls</h4>
+     <div style="margin-bottom: 8px;"><input type="email" id="grant-email" placeholder="Enter user email" style="width: 100%; padding: 6px 8px; border: none; border-radius: 4px; font-size: 12px; margin-bottom: 6px;">
+     </div>
+     <div style="display: flex; gap: 8px;"><button class="btn" style="background-color: white; color: #ff4757; padding: 6px 12px; font-size: 12px;" onclick="grantPremiumByEmail()"> Grant Premium </button> <button class="btn" style="background-color: rgba(255,255,255,0.2); color: white; padding: 6px 12px; font-size: 12px;" onclick="revokePremiumByEmail()"> Revoke Premium </button>
      </div>
     </div>
     <div class="button-group"><button type="button" class="btn btn-secondary" onclick="closeUpgradeModal()"> Maybe Later </button> <button type="button" class="btn btn-primary" onclick="upgradeToPremium()" id="upgrade-action-btn"> Upgrade Now </button>
@@ -1726,67 +1727,79 @@
             }
         ];
 
-        // YouTube Music Template - Replace with your own tracks
-        // To add YouTube music:
-        // 1. Find a YouTube video URL (e.g., https://www.youtube.com/watch?v=VIDEO_ID)
-        // 2. Extract the VIDEO_ID from the URL
-        // 3. Add it to the youtubeId field below
-        // 4. Update title, artist, album, duration, and genre accordingly
-        
+        // Real YouTube Music Tracks - Ready to play!
         const sampleTracks = [
             { 
                 id: '1', 
-                title: 'Midnight Dreams', 
-                artist: 'Luna Eclipse', 
-                album: 'Nocturnal', 
-                duration: '3:24', 
-                genre: 'Electronic',
-                youtubeId: null // Add YouTube video ID here (e.g., 'dQw4w9WgXcQ')
+                title: 'Blinding Lights', 
+                artist: 'The Weeknd', 
+                album: 'After Hours', 
+                duration: '3:20', 
+                genre: 'Pop',
+                youtubeId: '4NRXx6U8ABQ'
             },
             { 
                 id: '2', 
-                title: 'Neon Lights', 
-                artist: 'Cyber Wave', 
-                album: 'Digital Future', 
-                duration: '4:12', 
-                genre: 'Synthwave',
-                youtubeId: null // Add YouTube video ID here
+                title: 'Shape of You', 
+                artist: 'Ed Sheeran', 
+                album: '÷ (Divide)', 
+                duration: '3:53', 
+                genre: 'Pop',
+                youtubeId: 'JGwWNGJdvx8'
             },
             { 
                 id: '3', 
-                title: 'Ocean Breeze', 
-                artist: 'Chill Masters', 
-                album: 'Relaxation', 
-                duration: '3:45', 
-                genre: 'Ambient',
-                youtubeId: null // Add YouTube video ID here
+                title: 'Bohemian Rhapsody', 
+                artist: 'Queen', 
+                album: 'A Night at the Opera', 
+                duration: '5:55', 
+                genre: 'Rock',
+                youtubeId: 'fJ9rUzIMcZQ'
             },
             { 
                 id: '4', 
-                title: 'Thunder Road', 
-                artist: 'Rock Legends', 
-                album: 'Greatest Hits', 
-                duration: '4:33', 
-                genre: 'Rock',
-                youtubeId: null // Add YouTube video ID here
+                title: 'Bad Guy', 
+                artist: 'Billie Eilish', 
+                album: 'When We All Fall Asleep', 
+                duration: '3:14', 
+                genre: 'Pop',
+                youtubeId: 'DyDfgMOUjCI'
             },
             { 
                 id: '5', 
-                title: 'Summer Vibes', 
-                artist: 'Pop Stars', 
-                album: 'Seasonal', 
-                duration: '3:18', 
-                genre: 'Pop',
-                youtubeId: null // Add YouTube video ID here
+                title: 'Sunflower', 
+                artist: 'Post Malone & Swae Lee', 
+                album: 'Spider-Verse Soundtrack', 
+                duration: '2:38', 
+                genre: 'Hip-Hop',
+                youtubeId: 'ApXoWvfEYVU'
             },
             { 
                 id: '6', 
-                title: 'Bass Drop', 
-                artist: 'EDM Producer', 
-                album: 'Club Mix', 
-                duration: '5:02', 
-                genre: 'Electronic',
-                youtubeId: null // Add YouTube video ID here
+                title: 'Levitating', 
+                artist: 'Dua Lipa', 
+                album: 'Future Nostalgia', 
+                duration: '3:23', 
+                genre: 'Pop',
+                youtubeId: 'TUVcZfQe-Kw'
+            },
+            { 
+                id: '7', 
+                title: 'Watermelon Sugar', 
+                artist: 'Harry Styles', 
+                album: 'Fine Line', 
+                duration: '2:54', 
+                genre: 'Pop',
+                youtubeId: 'E07s5ZYygMg'
+            },
+            { 
+                id: '8', 
+                title: 'Someone You Loved', 
+                artist: 'Lewis Capaldi', 
+                album: 'Divinely Uninspired', 
+                duration: '3:02', 
+                genre: 'Pop',
+                youtubeId: 'zABLecsR5UE'
             }
         ];
 
@@ -2556,11 +2569,21 @@
             }
         }
         
-        function loadUserProfile() {
+        async function loadUserProfile() {
             try {
                 const saved = localStorage.getItem('soundify_profile');
                 if (saved) {
                     userProfile = { ...userProfile, ...JSON.parse(saved) };
+                }
+                
+                // Check if user has premium access by email
+                if (currentUser && currentUser.email) {
+                    const hasPremium = await checkPremiumStatus(currentUser.email);
+                    if (hasPremium && !userProfile.isPremium) {
+                        userProfile.isPremium = true;
+                        saveUserProfile();
+                        showToast('✅ Premium access detected for your account!');
+                    }
                 }
             } catch (error) {
                 console.error('Error loading profile:', error);
@@ -2637,6 +2660,95 @@
             updateUpgradeButton();
             showToast('⚠️ Premium access revoked');
             addUpdateLogEntry('REVOKED', 'updated', '👑 Admin revoked Premium access from user');
+        }
+        
+        // Email-based Premium Management
+        async function grantPremiumByEmail() {
+            if (!currentUser || !adminEmails.includes(currentUser.email)) {
+                showToast('❌ Access denied - Admin privileges required');
+                return;
+            }
+            
+            const email = document.getElementById('grant-email').value.trim();
+            if (!email) {
+                showToast('❌ Please enter a valid email address');
+                return;
+            }
+            
+            try {
+                // Save to Firestore premium users collection
+                await db.collection('premiumUsers').doc(email).set({
+                    email: email,
+                    isPremium: true,
+                    grantedBy: currentUser.email,
+                    grantedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast(`✅ Premium access granted to ${email}`);
+                addUpdateLogEntry('GRANTED', 'updated', `👑 Admin granted Premium access to ${email}`);
+                document.getElementById('grant-email').value = '';
+            } catch (error) {
+                // Fallback to localStorage if Firestore fails
+                const premiumUsers = JSON.parse(localStorage.getItem('soundify_premium_users') || '{}');
+                premiumUsers[email] = {
+                    isPremium: true,
+                    grantedBy: currentUser.email,
+                    grantedAt: new Date().toISOString()
+                };
+                localStorage.setItem('soundify_premium_users', JSON.stringify(premiumUsers));
+                
+                showToast(`✅ Premium access granted to ${email} (saved locally)`);
+                addUpdateLogEntry('GRANTED', 'updated', `👑 Admin granted Premium access to ${email}`);
+                document.getElementById('grant-email').value = '';
+            }
+        }
+        
+        async function revokePremiumByEmail() {
+            if (!currentUser || !adminEmails.includes(currentUser.email)) {
+                showToast('❌ Access denied - Admin privileges required');
+                return;
+            }
+            
+            const email = document.getElementById('grant-email').value.trim();
+            if (!email) {
+                showToast('❌ Please enter a valid email address');
+                return;
+            }
+            
+            try {
+                // Remove from Firestore
+                await db.collection('premiumUsers').doc(email).delete();
+                
+                showToast(`⚠️ Premium access revoked from ${email}`);
+                addUpdateLogEntry('REVOKED', 'updated', `👑 Admin revoked Premium access from ${email}`);
+                document.getElementById('grant-email').value = '';
+            } catch (error) {
+                // Fallback to localStorage
+                const premiumUsers = JSON.parse(localStorage.getItem('soundify_premium_users') || '{}');
+                delete premiumUsers[email];
+                localStorage.setItem('soundify_premium_users', JSON.stringify(premiumUsers));
+                
+                showToast(`⚠️ Premium access revoked from ${email} (removed locally)`);
+                addUpdateLogEntry('REVOKED', 'updated', `👑 Admin revoked Premium access from ${email}`);
+                document.getElementById('grant-email').value = '';
+            }
+        }
+        
+        // Check if user has premium access by email
+        async function checkPremiumStatus(userEmail) {
+            try {
+                // Check Firestore first
+                const doc = await db.collection('premiumUsers').doc(userEmail).get();
+                if (doc.exists && doc.data().isPremium) {
+                    return true;
+                }
+            } catch (error) {
+                console.log('Firestore check failed, checking localStorage');
+            }
+            
+            // Fallback to localStorage
+            const premiumUsers = JSON.parse(localStorage.getItem('soundify_premium_users') || '{}');
+            return premiumUsers[userEmail]?.isPremium || false;
         }
         
         function upgradeToPremium() {
@@ -3071,5 +3183,5 @@
             showToast(welcomeMsg);
         });
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99443684447dbd9b',t:'MTc2MTQyMTUxMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99444089a18e63d2',t:'MTc2MTQyMTkyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
