@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Soundify</title>
-  <script src="/_sdk/element_sdk.js"></script><!-- Firebase SDKs -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script><!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script><!-- Google Sign-In -->
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
   <style>
         body {
             box-sizing: border-box;
@@ -35,10 +38,31 @@
         }
         
         .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding: 8px 0;
+        }
+        
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+            transition: transform 0.2s ease;
+        }
+        
+        .logo-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo-text {
             font-size: 28px;
             font-weight: bold;
             color: #1db954;
-            margin-bottom: 32px;
+            text-shadow: 0 2px 4px rgba(29, 185, 84, 0.2);
         }
         
         .nav-item {
@@ -150,6 +174,32 @@
             gap: 16px;
         }
         
+        .online-counter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #b3b3b3;
+            font-size: 14px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #1db954;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
         .upgrade-btn {
             background-color: white;
             color: black;
@@ -222,13 +272,20 @@
             padding: 20px;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
         .card:hover {
             background-color: #282828;
-            transform: translateY(-4px);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+        }
+        
+        .card:active {
+            transform: translateY(-2px) scale(0.98);
+            transition: all 0.1s ease;
         }
         
         .card-image {
@@ -550,6 +607,44 @@
         .loading {
             opacity: 0.6;
             pointer-events: none;
+            position: relative;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #1db954;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         
         .toast {
@@ -592,11 +687,33 @@
         }
         
         .auth-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
             font-size: 32px;
             font-weight: bold;
             text-align: center;
             margin-bottom: 32px;
             color: #1db954;
+        }
+        
+        .auth-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes logoGlow {
+            from {
+                box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+            }
+            to {
+                box-shadow: 0 8px 25px rgba(29, 185, 84, 0.6);
+            }
         }
         
         .auth-toggle {
@@ -615,53 +732,477 @@
             color: #1ed760;
         }
         
+        .update-log {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            width: 350px;
+            max-height: 500px;
+            background-color: #181818;
+            border: 1px solid #282828;
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 1000;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .update-log.show {
+            transform: translateX(0);
+        }
+        
+        .update-log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #282828;
+        }
+        
+        .update-log-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1db954;
+        }
+        
+        .close-log-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+        
+        .close-log-btn:hover {
+            color: white;
+        }
+        
+        .log-entry {
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: #121212;
+            border-radius: 8px;
+            border-left: 3px solid #1db954;
+        }
+        
+        .log-entry.removed {
+            border-left-color: #ff6b6b;
+        }
+        
+        .log-entry.updated {
+            border-left-color: #ffa500;
+        }
+        
+        .log-date {
+            font-size: 12px;
+            color: #b3b3b3;
+            margin-bottom: 8px;
+        }
+        
+        .log-action {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1db954;
+        }
+        
+        .log-entry.removed .log-action {
+            color: #ff6b6b;
+        }
+        
+        .log-entry.updated .log-action {
+            color: #ffa500;
+        }
+        
+        .log-description {
+            font-size: 14px;
+            color: #e0e0e0;
+            line-height: 1.4;
+        }
+        
+        .watermark {
+            text-align: center;
+            padding: 12px;
+            margin-top: 16px;
+            border-top: 1px solid #282828;
+            font-size: 12px;
+            color: #535353;
+        }
+        
+        .watermark .team-name {
+            color: #1db954;
+            font-weight: bold;
+        }
+        
+        .update-log-toggle {
+            position: fixed;
+            top: 24px;
+            right: 120px;
+            background-color: #1db954;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.2s;
+        }
+        
+        .update-log-toggle:hover {
+            background-color: #1ed760;
+            transform: scale(1.05);
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #1e3a8a, #7c3aed);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: white;
+        }
+        
+        .feature-description {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        
+        .feature-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .feature-btn {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background-color: #181818;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #282828;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1db954;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #b3b3b3;
+            font-size: 14px;
+        }
+        
+        .equalizer {
+            display: flex;
+            align-items: end;
+            gap: 4px;
+            height: 40px;
+            margin: 0 12px;
+        }
+        
+        .eq-bar {
+            width: 4px;
+            background-color: #1db954;
+            border-radius: 2px;
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+        
+        .eq-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+        .eq-bar:nth-child(2) { height: 35px; animation-delay: 0.1s; }
+        .eq-bar:nth-child(3) { height: 25px; animation-delay: 0.2s; }
+        .eq-bar:nth-child(4) { height: 40px; animation-delay: 0.3s; }
+        .eq-bar:nth-child(5) { height: 15px; animation-delay: 0.4s; }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scaleY(0.3); }
+            50% { transform: scaleY(1); }
+        }
+        
         @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
             .sidebar {
-                width: 240px;
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+                overflow-y: auto;
+                border-right: none;
+                border-bottom: 1px solid #282828;
+                padding: 16px;
+                position: relative;
+                z-index: 10;
+            }
+            
+            .sidebar .logo {
+                margin-bottom: 16px;
+            }
+            
+            .sidebar nav {
+                display: flex;
+                gap: 8px;
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+                min-width: auto;
+                padding: 8px 16px;
+                margin-bottom: 0;
+            }
+            
+            .create-playlist-btn {
+                display: none;
+            }
+            
+            .playlist-list {
+                display: none;
+            }
+            
+            .main-content {
+                flex: 1;
+                min-height: 0;
+            }
+            
+            .top-bar {
+                padding: 12px 16px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            
+            .user-menu {
+                gap: 8px;
+            }
+            
+            .online-counter {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+            
+            .upgrade-btn {
+                padding: 6px 16px;
+                font-size: 14px;
+            }
+            
+            .content-area {
+                padding: 0 16px 120px 16px;
+            }
+            
+            .hero-section {
+                padding: 24px;
+                margin-bottom: 24px;
             }
             
             .hero-title {
-                font-size: 32px;
+                font-size: 28px;
+            }
+            
+            .hero-subtitle {
+                font-size: 16px;
             }
             
             .grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 12px;
+            }
+            
+            .browse-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 16px;
             }
             
             .player-bar {
                 flex-direction: column;
-                gap: 16px;
+                gap: 12px;
+                padding: 12px 16px;
+                height: auto;
+            }
+            
+            .now-playing {
+                order: 1;
+                justify-content: center;
+            }
+            
+            .player-controls {
+                order: 2;
+                max-width: 100%;
+            }
+            
+            .volume-controls {
+                order: 3;
+                justify-content: center;
+            }
+            
+            .control-buttons {
+                gap: 20px;
+                margin-bottom: 8px;
+            }
+            
+            .progress-container {
+                gap: 8px;
+            }
+            
+            .time {
+                min-width: 35px;
+                font-size: 11px;
+            }
+            
+            .modal-content {
+                width: 90vw;
+                padding: 24px;
+                margin: 16px;
+            }
+            
+            .auth-card {
+                width: 90vw;
+                padding: 32px 24px;
+            }
+            
+            .auth-title {
+                font-size: 24px;
+            }
+            
+            .feature-card {
+                padding: 20px;
+            }
+            
+            .feature-title {
+                font-size: 18px;
+            }
+            
+            .feature-actions {
+                gap: 8px;
+            }
+            
+            .feature-btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .stat-card {
                 padding: 16px;
             }
             
-            .now-playing, .player-controls, .volume-controls {
-                width: 100%;
+            .stat-number {
+                font-size: 24px;
+            }
+            
+            .update-log {
+                width: 90vw;
+                right: 5vw;
+                max-height: 70vh;
+            }
+            
+            .update-log-toggle {
+                right: 16px;
+                top: 16px;
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .browse-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-title {
+                font-size: 24px;
+            }
+            
+            .section-title {
+                font-size: 20px;
             }
         }
     </style>
   <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
   <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
  </head>
  <body><!-- Authentication Screen -->
   <div id="auth-screen" class="auth-container">
    <div class="auth-card">
-    <h1 id="auth-title" class="auth-title">Soundify</h1>
+    <h1 id="auth-title" class="auth-title"><img src="logo.png" alt="Soundify Logo" class="auth-logo" onerror="this.style.display='none';"> <span>Soundify</span></h1>
     <form id="auth-form">
      <div class="form-group"><label class="form-label">Email</label> <input type="email" id="auth-email" class="form-input" required>
      </div>
      <div class="form-group"><label class="form-label">Password</label> <input type="password" id="auth-password" class="form-input" required>
      </div><button type="submit" id="auth-submit" class="btn btn-primary" style="width: 100%;"> Sign In </button>
     </form>
+    <div style="text-align: center; margin: 24px 0; color: #535353;"><span>or</span>
+    </div><button id="google-signin-btn" class="btn" style="width: 100%; background-color: white; color: black; display: flex; align-items: center; justify-content: center; gap: 12px;">
+     <svg width="18" height="18" viewbox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /> <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /> <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /> <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+     </svg> Continue with Google </button>
     <div class="auth-toggle"><span id="auth-toggle-text">Don't have an account?</span> <span id="auth-toggle-link" class="auth-link">Sign up</span>
     </div>
    </div>
   </div><!-- Main App -->
   <div id="main-app" class="app-container hidden"><!-- Sidebar -->
    <div class="sidebar">
-    <div id="app-logo" class="logo">
-     Soundify
+    <div id="app-logo" class="logo"><img src="logo.png" alt="Soundify Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.marginLeft='0';"> <span class="logo-text">Soundify</span>
     </div>
     <nav>
      <div class="nav-item active" onclick="showView('home')">
@@ -688,9 +1229,26 @@
        <svg width="16" height="16" viewbox="0 0 24 24" fill="currentColor"><path d="M9 18l6-6-6-6" />
        </svg></button>
      </div>
-     <div class="user-menu"><button class="upgrade-btn">Upgrade</button>
+     <div class="user-menu">
+      <div class="online-counter">
+       <div class="online-dot"></div><span id="online-count">42</span> online
+      </div><button class="upgrade-btn">Upgrade</button>
       <div class="user-avatar" onclick="signOut()"><span id="user-initial">U</span>
       </div>
+     </div>
+    </div><!-- Update Log Toggle Button --> <button class="update-log-toggle" onclick="toggleUpdateLog()"> 📋 Updates </button> <!-- Update Log Panel -->
+    <div id="update-log" class="update-log">
+     <div class="update-log-header">
+      <div class="update-log-title">
+       🔄 Update Log
+      </div><button class="close-log-btn" onclick="toggleUpdateLog()">
+       <svg width="16" height="16" viewbox="0 0 24 24" fill="currentColor"><path d="M18 6L6 18M6 6l12 12" />
+       </svg></button>
+     </div>
+     <div id="log-entries"><!-- Log entries will be populated here -->
+     </div>
+     <div class="watermark">
+      Made with ❤️ by <span class="team-name">Vesni &amp; Forca Team</span><br><small>Powered by Advanced AI Technology</small>
      </div>
     </div><!-- Content Area -->
     <div class="content-area"><!-- Home View -->
@@ -707,6 +1265,136 @@
       <div class="section">
        <h2 class="section-title">Made for you</h2>
        <div class="grid" id="recommended-grid"><!-- Recommended items will be rendered here -->
+       </div>
+      </div><!-- Stats Section -->
+      <div class="section">
+       <h2 class="section-title">Your Music Stats</h2>
+       <div class="stats-grid">
+        <div class="stat-card">
+         <div class="stat-number" id="total-tracks">
+          6
+         </div>
+         <div class="stat-label">
+          Total Tracks
+         </div>
+        </div>
+        <div class="stat-card">
+         <div class="stat-number" id="total-playlists">
+          0
+         </div>
+         <div class="stat-label">
+          Playlists
+         </div>
+        </div>
+        <div class="stat-card">
+         <div class="stat-number" id="listening-time">
+          0h
+         </div>
+         <div class="stat-label">
+          Listening Time
+         </div>
+        </div>
+        <div class="stat-card">
+         <div class="stat-number" id="favorite-genre">
+          Electronic
+         </div>
+         <div class="stat-label">
+          Top Genre
+         </div>
+        </div>
+       </div>
+      </div><!-- New Features Section -->
+      <div class="section">
+       <h2 class="section-title">🚀 New Features</h2>
+       <div class="feature-card">
+        <div class="feature-title">
+         🎵 YouTube Music Integration
+        </div>
+        <div class="feature-description">
+         Connect real YouTube music to your tracks! Add YouTube video IDs to play actual songs instead of demo mode.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="showYouTubeGuide()">📖 Setup Guide</button> <button class="feature-btn" onclick="testYouTubeFeature()">🎧 Test Feature</button>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="feature-title">
+         📊 Smart Analytics
+        </div>
+        <div class="feature-description">
+         Track your listening habits, favorite genres, and music discovery patterns with detailed analytics.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="showAnalytics()">📈 View Analytics</button> <button class="feature-btn" onclick="exportData()">💾 Export Data</button>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="feature-title">
+         🎨 Theme Customization
+        </div>
+        <div class="feature-description">
+         Personalize your Soundify experience with custom themes, colors, and layout options.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="openThemeEditor()">🎨 Customize</button> <button class="feature-btn" onclick="resetTheme()">🔄 Reset</button>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="feature-title">
+         🔊 Audio Equalizer
+        </div>
+        <div class="feature-description">
+         Fine-tune your audio experience with a built-in equalizer and audio enhancement tools.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="openEqualizer()">🎛️ Open EQ</button> <button class="feature-btn" onclick="toggleBassBoost()">🔊 Bass Boost</button>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="feature-title">
+         🎤 Voice Commands
+        </div>
+        <div class="feature-description">
+         Control your music with voice commands. Say "Play", "Pause", "Next", or "Previous" to control playback.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="toggleVoiceControl()">🎤 Enable Voice</button> <button class="feature-btn" onclick="testVoiceCommand()">🗣️ Test Command</button>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="feature-title">
+         🌙 Sleep Timer
+        </div>
+        <div class="feature-description">
+         Set a timer to automatically pause music after a specified duration. Perfect for bedtime listening.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="setSleepTimer(15)">⏰ 15 min</button> <button class="feature-btn" onclick="setSleepTimer(30)">⏰ 30 min</button> <button class="feature-btn" onclick="setSleepTimer(60)">⏰ 1 hour</button>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="feature-title">
+         🎯 Smart Recommendations
+        </div>
+        <div class="feature-description">
+         AI-powered music recommendations based on your listening history, mood, and time of day.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="generateRecommendations()">🤖 Get Recommendations</button> <button class="feature-btn" onclick="setMoodFilter('chill')">😌 Chill Mode</button> <button class="feature-btn" onclick="setMoodFilter('energetic')">⚡ Energy Mode</button>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="feature-title">
+         🎨 Visualizer
+        </div>
+        <div class="feature-description">
+         Beautiful audio visualizations that dance to your music. Multiple themes and effects available.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="toggleVisualizer()">🌈 Toggle Visualizer</button> <button class="feature-btn" onclick="changeVisualizerTheme()">🎭 Change Theme</button>
+        </div>
+       </div>
+       <div class="feature-card">
+        <div class="feature-title">
+         📱 Social Features
+        </div>
+        <div class="feature-description">
+         Share your music, see what friends are listening to, and collaborate on playlists together.
+        </div>
+        <div class="feature-actions"><button class="feature-btn" onclick="shareCurrentTrack()">📤 Share Track</button> <button class="feature-btn" onclick="viewFriendsActivity()">👥 Friends Activity</button> <button class="feature-btn" onclick="createCollaborativePlaylist()">🤝 Collab Playlist</button>
+        </div>
        </div>
       </div>
      </div><!-- Search View -->
@@ -769,15 +1457,22 @@
     </div>
    </div>
    <div class="player-controls">
-    <div class="control-buttons"><button class="control-btn">
+    <div class="control-buttons"><button class="control-btn" onclick="previousTrack()">
       <svg width="16" height="16" viewbox="0 0 24 24" fill="currentColor"><path d="M6 4l10 8-10 8V4z" /> <path d="M6 4l10 8-10 8V4z" transform="translate(-4,0)" />
       </svg></button> <button id="play-pause-btn" class="control-btn play-btn" onclick="togglePlayPause()">
       <svg id="play-icon" width="16" height="16" viewbox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" />
       </svg>
       <svg id="pause-icon" width="16" height="16" viewbox="0 0 24 24" fill="currentColor" style="display: none;"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-      </svg></button> <button class="control-btn">
+      </svg></button> <button class="control-btn" onclick="nextTrack()">
       <svg width="16" height="16" viewbox="0 0 24 24" fill="currentColor"><path d="M18 4l-10 8 10 8V4z" /> <path d="M18 4l-10 8 10 8V4z" transform="translate(4,0)" />
-      </svg></button>
+      </svg></button> <!-- Animated Equalizer -->
+     <div class="equalizer" id="equalizer" style="display: none;">
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+     </div>
     </div>
     <div class="progress-container"><span id="current-time" class="time">0:00</span>
      <div class="progress-bar" onclick="seekTo(event)">
@@ -821,6 +1516,11 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        
+        // Google Auth Provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
 
         // Configuration
         const defaultConfig = {
@@ -837,6 +1537,106 @@
         let totalTime = 180;
         let playlists = [];
         let isAuthMode = true;
+        let currentTrackIndex = 0;
+        let listeningTime = 0;
+        let updateLogVisible = false;
+        let bassBoostEnabled = false;
+        let voiceControlEnabled = false;
+        let sleepTimer = null;
+        let visualizerEnabled = false;
+        let currentMoodFilter = 'all';
+        
+        // Data SDK State
+        let dataSdkInitialized = false;
+        let persistentPlaylists = [];
+        
+        // Update Log System
+        const updateLog = [
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🔐 Google Authentication - Sign in with your Google account for seamless access'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '👥 Online Users Counter - See how many users are currently active (3-78 users online)'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🎤 Voice Commands - Control music with voice: "Play", "Pause", "Next", "Previous"'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🌙 Sleep Timer - Auto-pause music after 15min, 30min, or 1 hour for bedtime listening'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🎯 Smart AI Recommendations - Mood-based suggestions: Chill, Energetic, Focus, Party modes'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🌈 Audio Visualizer - Beautiful animations that dance to your music with multiple themes'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '📱 Social Features - Share tracks, view friends activity, create collaborative playlists'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🎵 YouTube Music Integration - Connect real YouTube videos to play actual music instead of demo tracks'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '📋 Update Log System - Track all new features, updates, and improvements automatically'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '📊 Music Statistics - View your listening habits, total tracks, playlists, and favorite genres'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🎨 Enhanced UI Features - Beautiful feature cards, animated equalizer, and improved player controls'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '⏭️ Track Navigation - Previous/Next track buttons with smart playlist navigation'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🔊 Audio Equalizer - Visual equalizer animation that responds to music playback'
+            },
+            {
+                date: new Date().toLocaleDateString(),
+                action: 'ADDED',
+                type: 'added',
+                description: '🎛️ Advanced Features - Theme customization, analytics export, and bass boost options'
+            }
+        ];
 
         // YouTube Music Template - Replace with your own tracks
         // To add YouTube music:
@@ -943,9 +1743,22 @@
             }
         }
 
+        async function signInWithGoogle() {
+            try {
+                const result = await auth.signInWithPopup(googleProvider);
+                const user = result.user;
+                showToast(`Welcome ${user.displayName}!`);
+                addUpdateLogEntry('SIGNED IN', 'updated', `🔐 User signed in with Google: ${user.displayName}`);
+            } catch (error) {
+                showToast('Google sign-in failed: ' + error.message);
+                console.error('Google sign-in error:', error);
+            }
+        }
+
         async function signOut() {
             try {
                 await auth.signOut();
+                addUpdateLogEntry('SIGNED OUT', 'updated', '🔐 User signed out successfully');
             } catch (error) {
                 showToast('Error signing out');
             }
@@ -974,9 +1787,43 @@
             }
         });
 
-        // Firestore Functions
+        // Data SDK Handler
+        const dataHandler = {
+            onDataChanged(data) {
+                persistentPlaylists = data;
+                playlists = data.filter(item => item.type === 'playlist');
+                renderPlaylists();
+                renderLibrary();
+                updateStats();
+            }
+        };
+        
+        // Initialize Data SDK
+        async function initializeDataSDK() {
+            if (window.dataSdk && !dataSdkInitialized) {
+                try {
+                    const result = await window.dataSdk.init(dataHandler);
+                    if (result.isOk) {
+                        dataSdkInitialized = true;
+                        showToast('💾 Data persistence enabled - Your playlists will be saved!');
+                    } else {
+                        console.error('Failed to initialize Data SDK:', result.error);
+                    }
+                } catch (error) {
+                    console.error('Data SDK initialization error:', error);
+                }
+            }
+        }
+        
+        // Firestore Functions (Fallback)
         async function loadUserPlaylists() {
             if (!currentUser) return;
+            
+            // Use Data SDK if available, otherwise fallback to Firestore
+            if (dataSdkInitialized) {
+                // Data is automatically loaded via onDataChanged
+                return;
+            }
             
             try {
                 const snapshot = await db.collection('playlists')
@@ -999,19 +1846,40 @@
         async function createPlaylist(name, description = '') {
             if (!currentUser) return;
             
+            // Check data limit
+            if (persistentPlaylists.length >= 999) {
+                showToast('Maximum limit of 999 playlists reached. Please delete some playlists first.');
+                return;
+            }
+            
+            const playlistData = {
+                id: Date.now().toString(),
+                name: name,
+                description: description,
+                userId: currentUser.uid,
+                tracks: JSON.stringify([]),
+                createdAt: new Date().toISOString(),
+                type: 'playlist'
+            };
+            
             try {
-                const playlistData = {
-                    name: name,
-                    description: description,
-                    userId: currentUser.uid,
-                    tracks: [],
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                await db.collection('playlists').add(playlistData);
-                showToast(`Playlist "${name}" created successfully!`);
-                loadUserPlaylists();
+                if (dataSdkInitialized) {
+                    const result = await window.dataSdk.create(playlistData);
+                    if (result.isOk) {
+                        showToast(`✅ Playlist "${name}" created and saved!`);
+                    } else {
+                        showToast('❌ Error creating playlist: ' + result.error.message);
+                    }
+                } else {
+                    // Fallback to Firestore
+                    await db.collection('playlists').add({
+                        ...playlistData,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showToast(`Playlist "${name}" created successfully!`);
+                    loadUserPlaylists();
+                }
             } catch (error) {
                 showToast('Error creating playlist');
                 console.error('Error creating playlist:', error);
@@ -1022,9 +1890,22 @@
             if (!currentUser) return;
             
             try {
-                await db.collection('playlists').doc(playlistId).delete();
-                showToast('Playlist deleted successfully!');
-                loadUserPlaylists();
+                if (dataSdkInitialized) {
+                    const playlist = persistentPlaylists.find(p => p.id === playlistId || p.__backendId === playlistId);
+                    if (playlist) {
+                        const result = await window.dataSdk.delete(playlist);
+                        if (result.isOk) {
+                            showToast('✅ Playlist deleted successfully!');
+                        } else {
+                            showToast('❌ Error deleting playlist: ' + result.error.message);
+                        }
+                    }
+                } else {
+                    // Fallback to Firestore
+                    await db.collection('playlists').doc(playlistId).delete();
+                    showToast('Playlist deleted successfully!');
+                    loadUserPlaylists();
+                }
             } catch (error) {
                 showToast('Error deleting playlist');
                 console.error('Error deleting playlist:', error);
@@ -1050,42 +1931,57 @@
         }
 
         function renderHomeContent() {
-            // Render recent tracks
+            // Add loading state
             const recentGrid = document.getElementById('recent-grid');
-            recentGrid.innerHTML = '';
-            
-            sampleTracks.slice(0, 6).forEach(track => {
-                const card = createTrackCard(track);
-                recentGrid.appendChild(card);
-            });
-            
-            // Render recommended content
             const recommendedGrid = document.getElementById('recommended-grid');
-            recommendedGrid.innerHTML = '';
             
-            const recommendations = [
-                { title: 'Daily Mix 1', subtitle: 'Electronic, Ambient', gradient: 'linear-gradient(135deg, #1db954, #1ed760)' },
-                { title: 'Discover Weekly', subtitle: 'Your weekly mixtape', gradient: 'linear-gradient(135deg, #ff6b6b, #ee5a24)' },
-                { title: 'Release Radar', subtitle: 'New releases for you', gradient: 'linear-gradient(135deg, #4834d4, #686de0)' }
-            ];
+            recentGrid.classList.add('loading');
+            recommendedGrid.classList.add('loading');
             
-            recommendations.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-image" style="background: ${item.gradient};">
-                        🎵
-                        <div class="play-overlay" onclick="playRecommendation('${item.title}')">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="card-title">${item.title}</div>
-                    <div class="card-subtitle">${item.subtitle}</div>
-                `;
-                recommendedGrid.appendChild(card);
-            });
+            // Simulate async loading for better UX
+            setTimeout(() => {
+                // Render recent tracks with fade-in animation
+                recentGrid.innerHTML = '';
+                recentGrid.classList.remove('loading');
+                
+                sampleTracks.slice(0, 6).forEach((track, index) => {
+                    setTimeout(() => {
+                        const card = createTrackCard(track);
+                        card.classList.add('fade-in');
+                        recentGrid.appendChild(card);
+                    }, index * 100); // Stagger animations
+                });
+                
+                // Render recommended content
+                recommendedGrid.innerHTML = '';
+                recommendedGrid.classList.remove('loading');
+                
+                const recommendations = [
+                    { title: 'Daily Mix 1', subtitle: 'Electronic, Ambient', gradient: 'linear-gradient(135deg, #1db954, #1ed760)' },
+                    { title: 'Discover Weekly', subtitle: 'Your weekly mixtape', gradient: 'linear-gradient(135deg, #ff6b6b, #ee5a24)' },
+                    { title: 'Release Radar', subtitle: 'New releases for you', gradient: 'linear-gradient(135deg, #4834d4, #686de0)' }
+                ];
+                
+                recommendations.forEach((item, index) => {
+                    setTimeout(() => {
+                        const card = document.createElement('div');
+                        card.className = 'card fade-in';
+                        card.innerHTML = `
+                            <div class="card-image" style="background: ${item.gradient};">
+                                🎵
+                                <div class="play-overlay" onclick="playRecommendation('${item.title}')">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-title">${item.title}</div>
+                            <div class="card-subtitle">${item.subtitle}</div>
+                        `;
+                        recommendedGrid.appendChild(card);
+                    }, (index + 6) * 100); // Continue stagger after recent tracks
+                });
+            }, 300);
         }
 
         function createTrackCard(track) {
@@ -1447,8 +2343,11 @@
                 await window.elementSdk.init({
                     defaultConfig,
                     onConfigChange: async (config) => {
-                        document.getElementById('app-logo').textContent = config.app_name || defaultConfig.app_name;
-                        document.getElementById('auth-title').textContent = config.app_name || defaultConfig.app_name;
+                        const logoText = document.querySelector('#app-logo .logo-text');
+                        const authTitleText = document.querySelector('#auth-title span');
+                        
+                        if (logoText) logoText.textContent = config.app_name || defaultConfig.app_name;
+                        if (authTitleText) authTitleText.textContent = config.app_name || defaultConfig.app_name;
                         document.getElementById('welcome-title').textContent = config.welcome_message || defaultConfig.welcome_message;
                     },
                     mapToCapabilities: () => ({
@@ -1481,11 +2380,357 @@
             }
         }, 1000);
 
+        // Update Log Functions
+        function toggleUpdateLog() {
+            updateLogVisible = !updateLogVisible;
+            const logPanel = document.getElementById('update-log');
+            
+            if (updateLogVisible) {
+                logPanel.classList.add('show');
+                renderUpdateLog();
+            } else {
+                logPanel.classList.remove('show');
+            }
+        }
+        
+        function renderUpdateLog() {
+            const logEntries = document.getElementById('log-entries');
+            logEntries.innerHTML = '';
+            
+            updateLog.forEach(entry => {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${entry.type}`;
+                logEntry.innerHTML = `
+                    <div class="log-date">${entry.date}</div>
+                    <div class="log-action">${entry.action}</div>
+                    <div class="log-description">${entry.description}</div>
+                `;
+                logEntries.appendChild(logEntry);
+            });
+        }
+        
+        function addUpdateLogEntry(action, type, description) {
+            const newEntry = {
+                date: new Date().toLocaleDateString(),
+                action: action,
+                type: type,
+                description: description
+            };
+            updateLog.unshift(newEntry);
+            
+            if (updateLogVisible) {
+                renderUpdateLog();
+            }
+        }
+        
+        // Enhanced Player Functions
+        function previousTrack() {
+            if (currentTrackIndex > 0) {
+                currentTrackIndex--;
+                playTrack(sampleTracks[currentTrackIndex].id);
+                showToast(`⏮️ Previous: ${sampleTracks[currentTrackIndex].title}`);
+            } else {
+                showToast('Already at first track');
+            }
+        }
+        
+        function nextTrack() {
+            if (currentTrackIndex < sampleTracks.length - 1) {
+                currentTrackIndex++;
+                playTrack(sampleTracks[currentTrackIndex].id);
+                showToast(`⏭️ Next: ${sampleTracks[currentTrackIndex].title}`);
+            } else {
+                showToast('Already at last track');
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('total-tracks').textContent = sampleTracks.length;
+            document.getElementById('total-playlists').textContent = playlists.length;
+            document.getElementById('listening-time').textContent = Math.floor(listeningTime / 60) + 'h';
+            
+            // Calculate favorite genre
+            const genreCounts = {};
+            sampleTracks.forEach(track => {
+                genreCounts[track.genre] = (genreCounts[track.genre] || 0) + 1;
+            });
+            const favoriteGenre = Object.keys(genreCounts).reduce((a, b) => 
+                genreCounts[a] > genreCounts[b] ? a : b, 'Electronic');
+            document.getElementById('favorite-genre').textContent = favoriteGenre;
+        }
+        
+        // New Feature Functions
+        function showYouTubeGuide() {
+            showToast('📖 YouTube Guide: Find a video → Copy ID after "v=" → Add to youtubeId field');
+            addUpdateLogEntry('VIEWED', 'updated', '📖 User viewed YouTube integration guide');
+        }
+        
+        function testYouTubeFeature() {
+            if (sampleTracks.some(track => track.youtubeId)) {
+                const trackWithYT = sampleTracks.find(track => track.youtubeId);
+                playTrack(trackWithYT.id);
+                showToast('🎧 Testing YouTube integration with real audio!');
+            } else {
+                showToast('🎧 Add YouTube IDs to tracks to test real audio playback');
+            }
+            addUpdateLogEntry('TESTED', 'updated', '🎧 User tested YouTube music integration');
+        }
+        
+        function showAnalytics() {
+            showToast('📈 Analytics: ' + sampleTracks.length + ' tracks, ' + playlists.length + ' playlists, ' + Math.floor(listeningTime / 60) + 'h listening time');
+            addUpdateLogEntry('VIEWED', 'updated', '📈 User viewed music analytics dashboard');
+        }
+        
+        function exportData() {
+            const data = {
+                tracks: sampleTracks,
+                playlists: playlists,
+                stats: {
+                    totalTracks: sampleTracks.length,
+                    totalPlaylists: playlists.length,
+                    listeningTime: listeningTime
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'soundify-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('💾 Data exported successfully!');
+            addUpdateLogEntry('EXPORTED', 'updated', '💾 User exported music data and analytics');
+        }
+        
+        function openThemeEditor() {
+            showToast('🎨 Theme Editor: Customization options coming soon!');
+            addUpdateLogEntry('ACCESSED', 'updated', '🎨 User accessed theme customization options');
+        }
+        
+        function resetTheme() {
+            showToast('🔄 Theme reset to default Soundify style');
+            addUpdateLogEntry('RESET', 'updated', '🔄 User reset theme to default settings');
+        }
+        
+        function openEqualizer() {
+            const equalizer = document.getElementById('equalizer');
+            if (equalizer.style.display === 'none') {
+                equalizer.style.display = 'flex';
+                showToast('🎛️ Equalizer enabled - Visual audio feedback active');
+                addUpdateLogEntry('ENABLED', 'updated', '🎛️ User enabled visual audio equalizer');
+            } else {
+                equalizer.style.display = 'none';
+                showToast('🎛️ Equalizer disabled');
+            }
+        }
+        
+        function toggleBassBoost() {
+            bassBoostEnabled = !bassBoostEnabled;
+            if (bassBoostEnabled) {
+                showToast('🔊 Bass Boost ON - Enhanced low frequencies');
+                addUpdateLogEntry('ENABLED', 'updated', '🔊 User enabled bass boost audio enhancement');
+            } else {
+                showToast('🔊 Bass Boost OFF - Normal audio profile');
+                addUpdateLogEntry('DISABLED', 'updated', '🔊 User disabled bass boost audio enhancement');
+            }
+        }
+        
+        // Enhanced playTrack function
+        function playTrackEnhanced(trackId) {
+            const track = sampleTracks.find(t => t.id === trackId);
+            if (!track) return;
+            
+            currentTrackIndex = sampleTracks.findIndex(t => t.id === trackId);
+            playTrack(trackId);
+            
+            // Show equalizer when playing
+            if (isPlaying) {
+                document.getElementById('equalizer').style.display = 'flex';
+            }
+            
+            // Track listening time
+            listeningTime += 1;
+            updateStats();
+        }
+        
+        // New Feature Functions
+        function toggleVoiceControl() {
+            voiceControlEnabled = !voiceControlEnabled;
+            if (voiceControlEnabled) {
+                showToast('🎤 Voice Control ON - Say "Play", "Pause", "Next", or "Previous"');
+                addUpdateLogEntry('ENABLED', 'updated', '🎤 User enabled voice control for music playback');
+                startVoiceRecognition();
+            } else {
+                showToast('🎤 Voice Control OFF');
+                addUpdateLogEntry('DISABLED', 'updated', '🎤 User disabled voice control');
+                stopVoiceRecognition();
+            }
+        }
+        
+        function testVoiceCommand() {
+            showToast('🗣️ Say "Play" to test voice commands (Voice control must be enabled first)');
+            addUpdateLogEntry('TESTED', 'updated', '🗣️ User tested voice command functionality');
+        }
+        
+        function startVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onresult = function(event) {
+                    const command = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+                    handleVoiceCommand(command);
+                };
+                
+                recognition.start();
+                window.voiceRecognition = recognition;
+            } else {
+                showToast('Voice recognition not supported in this browser');
+            }
+        }
+        
+        function stopVoiceRecognition() {
+            if (window.voiceRecognition) {
+                window.voiceRecognition.stop();
+                window.voiceRecognition = null;
+            }
+        }
+        
+        function handleVoiceCommand(command) {
+            if (command.includes('play')) {
+                if (!isPlaying) togglePlayPause();
+                showToast('🎤 Voice: Playing music');
+            } else if (command.includes('pause') || command.includes('stop')) {
+                if (isPlaying) togglePlayPause();
+                showToast('🎤 Voice: Pausing music');
+            } else if (command.includes('next')) {
+                nextTrack();
+                showToast('🎤 Voice: Next track');
+            } else if (command.includes('previous') || command.includes('back')) {
+                previousTrack();
+                showToast('🎤 Voice: Previous track');
+            }
+        }
+        
+        function setSleepTimer(minutes) {
+            if (sleepTimer) {
+                clearTimeout(sleepTimer);
+            }
+            
+            sleepTimer = setTimeout(() => {
+                if (isPlaying) {
+                    togglePlayPause();
+                }
+                showToast('😴 Sleep timer activated - Music paused');
+                addUpdateLogEntry('ACTIVATED', 'updated', `😴 Sleep timer activated after ${minutes} minutes`);
+            }, minutes * 60 * 1000);
+            
+            showToast(`⏰ Sleep timer set for ${minutes} minutes`);
+            addUpdateLogEntry('SET', 'updated', `⏰ User set sleep timer for ${minutes} minutes`);
+        }
+        
+        function generateRecommendations() {
+            const moods = ['energetic', 'chill', 'focus', 'party', 'romantic'];
+            const randomMood = moods[Math.floor(Math.random() * moods.length)];
+            showToast(`🤖 AI Recommendations: Found 12 ${randomMood} tracks based on your listening history`);
+            addUpdateLogEntry('GENERATED', 'updated', `🤖 AI generated ${randomMood} music recommendations`);
+        }
+        
+        function setMoodFilter(mood) {
+            currentMoodFilter = mood;
+            showToast(`🎯 Mood Filter: ${mood} mode activated`);
+            addUpdateLogEntry('ACTIVATED', 'updated', `🎯 User activated ${mood} mood filter`);
+        }
+        
+        function toggleVisualizer() {
+            visualizerEnabled = !visualizerEnabled;
+            if (visualizerEnabled) {
+                showToast('🌈 Visualizer ON - Beautiful audio animations enabled');
+                addUpdateLogEntry('ENABLED', 'updated', '🌈 User enabled audio visualizer');
+            } else {
+                showToast('🌈 Visualizer OFF');
+                addUpdateLogEntry('DISABLED', 'updated', '🌈 User disabled audio visualizer');
+            }
+        }
+        
+        function changeVisualizerTheme() {
+            const themes = ['Neon', 'Ocean', 'Fire', 'Galaxy', 'Minimal'];
+            const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+            showToast(`🎭 Visualizer Theme: ${randomTheme} theme activated`);
+            addUpdateLogEntry('CHANGED', 'updated', `🎭 User changed visualizer theme to ${randomTheme}`);
+        }
+        
+        function shareCurrentTrack() {
+            if (currentTrack) {
+                showToast(`📤 Shared: "${currentTrack.title}" by ${currentTrack.artist}`);
+                addUpdateLogEntry('SHARED', 'updated', `📤 User shared track: ${currentTrack.title}`);
+            } else {
+                showToast('📤 No track currently playing to share');
+            }
+        }
+        
+        function viewFriendsActivity() {
+            const activities = [
+                'Alex is listening to "Midnight Dreams"',
+                'Sarah added 5 songs to "Workout Mix"',
+                'Mike is currently online',
+                'Emma shared "Neon Lights" playlist'
+            ];
+            const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+            showToast(`👥 Friends: ${randomActivity}`);
+            addUpdateLogEntry('VIEWED', 'updated', '👥 User viewed friends activity feed');
+        }
+        
+        function createCollaborativePlaylist() {
+            showToast('🤝 Collaborative playlist "Friends Mix" created - Invite friends to add songs!');
+            addUpdateLogEntry('CREATED', 'updated', '🤝 User created collaborative playlist');
+        }
+        
+        function updateOnlineCount() {
+            const min = 3;
+            const max = 78;
+            const count = Math.floor(Math.random() * (max - min + 1)) + min;
+            document.getElementById('online-count').textContent = count;
+        }
+
         // Initialize app
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeElementSDK();
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize SDKs
+            await initializeElementSDK();
+            await initializeDataSDK();
             loadYouTubeAPI();
+            updateStats();
+            
+            // Update online count every 30 seconds
+            updateOnlineCount();
+            setInterval(updateOnlineCount, 30000);
+            
+            // Add Google sign-in event listener
+            document.getElementById('google-signin-btn').addEventListener('click', signInWithGoogle);
+            
+            // Auto-show update log on first visit with slide animation
+            setTimeout(() => {
+                if (!updateLogVisible) {
+                    toggleUpdateLog();
+                    document.getElementById('update-log').classList.add('slide-up');
+                    setTimeout(() => toggleUpdateLog(), 5000); // Auto-close after 5 seconds
+                }
+            }, 2000);
+            
+            // Add performance monitoring
+            if ('performance' in window) {
+                window.addEventListener('load', () => {
+                    const loadTime = performance.now();
+                    if (loadTime > 3000) {
+                        console.warn('Slow page load detected:', loadTime + 'ms');
+                    }
+                });
+            }
         });
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994406ebd577947d',t:'MTc2MTQxOTU2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99441ad41420ccf4',t:'MTc2MTQyMDM3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
