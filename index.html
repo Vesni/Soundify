@@ -1,108 +1,2855 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Soundify – Global Music</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link rel="icon" href="favicon.ico" type="image/x-icon"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundify - Your Music, Your Way</title>
+    <link rel="icon" href="favicon.ico">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #191414;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: #121212;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #282828;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1DB954;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .nav-item {
+            margin-bottom: 16px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #b3b3b3;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .create-section {
+            margin-bottom: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #282828;
+        }
+
+        .create-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #b3b3b3;
+            background: none;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 0;
+            transition: color 0.2s;
+            width: 100%;
+            text-align: left;
+        }
+
+        .create-btn:hover {
+            color: white;
+        }
+
+        .online-section {
+            margin-bottom: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #282828;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: #b3b3b3;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .online-users {
+            margin-bottom: 24px;
+        }
+
+        .online-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #b3b3b3;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .online-user:hover {
+            color: white;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #1DB954;
+            border-radius: 50%;
+        }
+
+        .recent-playlists {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .recent-playlist {
+            font-size: 14px;
+            color: #b3b3b3;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .recent-playlist:hover {
+            color: white;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #1e3264 0%, #191414 300px);
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 350px;
+            padding: 12px 16px 12px 48px;
+            border-radius: 25px;
+            border: none;
+            background: white;
+            color: black;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            fill: #666;
+        }
+
+        .time-remaining {
+            font-size: 12px;
+            color: #b3b3b3;
+        }
+
+        .premium-badge {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: black;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            background: #1DB954;
+            color: black;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #1ed760;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #535353;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .profile-pic:hover {
+            background: #727272;
+        }
+
+        .sign-out-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+
+        .sign-out-btn:hover {
+            color: white;
+        }
+
+        /* Content Area Styles */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+
+        .quick-access {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .quick-item {
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .quick-item:hover {
+            transform: scale(1.02);
+        }
+
+        .quick-item:nth-child(2) {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .quick-item:nth-child(3) {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .quick-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .card {
+            background: #181818;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            position: relative;
+            group: hover;
+        }
+
+        .card:hover {
+            background: #282828;
+            transform: translateY(-4px);
+        }
+
+        .card-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #535353;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image svg {
+            width: 48px;
+            height: 48px;
+            fill: white;
+        }
+
+        .play-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 48px;
+            height: 48px;
+            background: #1DB954;
+            border: none;
+            border-radius: 50%;
+            color: black;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.2s;
+        }
+
+        .card:hover .play-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .card-subtitle {
+            color: #b3b3b3;
+            font-size: 14px;
+        }
+
+        /* Search Styles */
+        .genre-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .genre-card {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-radius: 8px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            min-height: 120px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .genre-card:hover {
+            transform: scale(1.02);
+        }
+
+        .genre-card:nth-child(2) {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .genre-card:nth-child(3) {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .genre-card:nth-child(4) {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .genre-title {
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .genre-decoration {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+        }
+
+        .search-results {
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .track-list {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .track-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .track-item:last-child {
+            border-bottom: none;
+        }
+
+        .track-number {
+            width: 40px;
+            color: #b3b3b3;
+            font-size: 14px;
+        }
+
+        .track-image {
+            width: 48px;
+            height: 48px;
+            background: #535353;
+            border-radius: 4px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .track-info {
+            flex: 1;
+        }
+
+        .track-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .track-artist {
+            color: #b3b3b3;
+            font-size: 14px;
+        }
+
+        .track-album {
+            color: #b3b3b3;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        .track-duration {
+            color: #b3b3b3;
+            font-size: 14px;
+            width: 60px;
+            text-align: right;
+        }
+
+        .track-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: white;
+        }
+
+        /* Player Bar Styles */
+        .player-bar {
+            background: #181818;
+            border-top: 1px solid #282828;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .player-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 30%;
+        }
+
+        .current-track-image {
+            width: 56px;
+            height: 56px;
+            background: #535353;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .current-track-info {
+            flex: 1;
+        }
+
+        .current-track-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .current-track-artist {
+            color: #b3b3b3;
+            font-size: 12px;
+        }
+
+        .like-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 8px;
+            transition: color 0.2s;
+        }
+
+        .like-btn:hover, .like-btn.liked {
+            color: #1DB954;
+        }
+
+        .player-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 8px;
+            transition: color 0.2s;
+        }
+
+        .control-btn:hover, .control-btn.active {
+            color: white;
+        }
+
+        .play-pause-btn {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            color: black;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .play-pause-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .time-display {
+            font-size: 12px;
+            color: #b3b3b3;
+            min-width: 40px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #535353;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            transition: width 0.1s;
+        }
+
+        .progress-bar:hover .progress-fill {
+            background: #1DB954;
+        }
+
+        .player-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 30%;
+            justify-content: flex-end;
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-bar {
+            width: 80px;
+            height: 4px;
+            background: #535353;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+        }
+
+        /* Voice Control Styles */
+        .voice-control {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .voice-btn {
+            width: 60px;
+            height: 60px;
+            background: #1DB954;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(29, 185, 84, 0.3);
+            transition: all 0.2s;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(29, 185, 84, 0.4);
+        }
+
+        .voice-btn.listening {
+            background: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .voice-feedback {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.2s;
+        }
+
+        .voice-feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: #282828;
+            border-radius: 8px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background: #535353;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            background: #727272;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background: #535353;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-textarea:focus {
+            background: #727272;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background: #535353;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-secondary {
+            background: none;
+            border: 1px solid #535353;
+            color: #b3b3b3;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            color: white;
+            border-color: white;
+        }
+
+        .admin-section {
+            margin-bottom: 24px;
+        }
+
+        .premium-users-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .premium-user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .premium-user-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .revoke-btn {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .revoke-btn:hover {
+            background: #dc2626;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .search-input {
+                width: 250px;
+            }
+
+            .content-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .genre-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-access {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div class="app">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="logo.png" alt="Soundify" style="width: 32px; height: 32px; margin-right: 8px;">
+                Soundify
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" onclick="showSection('home')">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('search')">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                            Search
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('library')">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
+                            Your Library
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="create-section">
+                <button class="create-btn" onclick="createPlaylist()">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    Create Playlist
+                </button>
+                <button class="create-btn" onclick="showLikedSongs()">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    Liked Songs
+                </button>
+            </div>
+            
+            <div class="online-section">
+                <div class="section-title">Online Users</div>
+                <div class="online-users" id="onlineUsers">
+                    <!-- Online users will be populated by JavaScript -->
+                </div>
+                
+                <div class="section-title">Recently Played</div>
+                <div class="recent-playlists" id="recentPlaylists">
+                    <div class="recent-playlist">My Playlist #1</div>
+                    <div class="recent-playlist">Chill Vibes</div>
+                    <div class="recent-playlist">Workout Mix</div>
+                    <div class="recent-playlist">Road Trip Songs</div>
+                    <div class="recent-playlist">Study Focus</div>
+                </div>
+            </div>
+        </aside>
 
-  <!-- Sidebar -->
-  <nav class="sidebar">
-    <div class="logo"><img src="logo.png" alt="Soundify"/></div>
-    <ul class="nav-menu">
-      <li><a href="#" data-page="home">Home</a></li>
-      <li><a href="#" data-page="india">India</a></li>
-      <li><a href="#" data-page="japan">Japan</a></li>
-      <li><a href="#" data-page="search">Search</a></li>
-      <li><a href="#" data-page="library">Library</a></li>
-      <li><a href="#" data-page="queue">Queue</a></li>
-    </ul>
-    <div class="playlist-section">
-      <h3>Playlists</h3>
-      <ul id="playlist-list"></ul>
-      <button id="newPlaylistBtn">+ Create Playlist</button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goBack()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                    </button>
+                    <button class="nav-btn" onclick="goForward()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </button>
+                </div>
+                
+                <div class="top-bar-right">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search for songs, artists, or playlists" id="searchInput" onkeyup="handleSearch(event)">
+                        <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </div>
+                    
+                    <div id="timeRemaining" class="time-remaining hidden">
+                        Time left: <span id="timeLeft">4:00:00</span>
+                    </div>
+                    
+                    <div id="premiumBadge" class="premium-badge hidden">
+                        PREMIUM
+                    </div>
+                    
+                    <div id="authButtons" class="auth-buttons">
+                        <button class="btn-primary" onclick="signInWithGoogle()">
+                            Sign In
+                        </button>
+                    </div>
+                    
+                    <div id="userProfile" class="user-profile hidden">
+                        <button class="btn-primary" onclick="togglePremium()" id="upgradeBtn">
+                            Upgrade
+                        </button>
+                        <div class="profile-pic" onclick="showProfile()" id="profilePic">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <button class="sign-out-btn" onclick="signOut()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area scrollbar-hide">
+                <!-- Home Section -->
+                <section id="homeSection" class="section active">
+                    <h1 class="section-header">Good evening</h1>
+                    
+                    <div class="quick-access">
+                        <div class="quick-item" onclick="playPlaylist('liked')">
+                            <div class="quick-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
+                            <span>Liked Songs</span>
+                        </div>
+                        <div class="quick-item" onclick="playPlaylist('discover')">
+                            <div class="quick-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            </div>
+                            <span>Discover Weekly</span>
+                        </div>
+                        <div class="quick-item" onclick="playPlaylist('mix')">
+                            <div class="quick-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            </div>
+                            <span>Your Mix</span>
+                        </div>
+                    </div>
+
+                    <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 24px;">Recently played</h2>
+                    <div class="content-grid" id="recentlyPlayed">
+                        <!-- Recently played items will be populated by JavaScript -->
+                    </div>
+
+                    <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 24px;">Made for you</h2>
+                    <div class="content-grid" id="madeForYou">
+                        <!-- Made for you items will be populated by JavaScript -->
+                    </div>
+
+                    <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 24px;">Popular playlists</h2>
+                    <div class="content-grid" id="popularPlaylists">
+                        <!-- Popular playlists will be populated by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Search Section -->
+                <section id="searchSection" class="section">
+                    <h1 class="section-header">Search</h1>
+                    
+                    <div class="genre-grid">
+                        <div class="genre-card" onclick="searchByGenre('pop')">
+                            <h3 class="genre-title">Pop</h3>
+                            <div class="genre-decoration"></div>
+                        </div>
+                        <div class="genre-card" onclick="searchByGenre('hip-hop')">
+                            <h3 class="genre-title">Hip-Hop</h3>
+                            <div class="genre-decoration"></div>
+                        </div>
+                        <div class="genre-card" onclick="searchByGenre('rock')">
+                            <h3 class="genre-title">Rock</h3>
+                            <div class="genre-decoration"></div>
+                        </div>
+                        <div class="genre-card" onclick="searchByGenre('electronic')">
+                            <h3 class="genre-title">Electronic</h3>
+                            <div class="genre-decoration"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="searchResults" class="search-results">
+                        <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 24px;">Search Results</h2>
+                        <div class="track-list" id="searchResultsList">
+                            <!-- Search results will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Library Section -->
+                <section id="librarySection" class="section">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+                        <h1 class="section-header" style="margin-bottom: 0;">Your Library</h1>
+                        <button class="btn-primary" onclick="createPlaylist()">
+                            Create Playlist
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 16px; margin-bottom: 32px;">
+                        <button class="btn-primary" onclick="filterLibrary('all')" style="font-size: 14px; padding: 8px 16px;">All</button>
+                        <button class="btn-secondary" onclick="filterLibrary('playlists')" style="font-size: 14px; padding: 8px 16px;">Playlists</button>
+                        <button class="btn-secondary" onclick="filterLibrary('artists')" style="font-size: 14px; padding: 8px 16px;">Artists</button>
+                        <button class="btn-secondary" onclick="filterLibrary('albums')" style="font-size: 14px; padding: 8px 16px;">Albums</button>
+                    </div>
+                    
+                    <div id="libraryContent">
+                        <!-- Library content will be populated by JavaScript -->
+                    </div>
+                </section>
+            </div>
+        </main>
     </div>
-  </nav>
 
-  <!-- Main Content + Player + Log -->
-  <div class="main-wrapper">
-    <main class="main-content">
-      <header class="header">
-        <button class="nav-toggle" id="navToggle">Menu</button>
-        <input type="text" placeholder="Search 200+ songs…" class="search-bar" id="searchBar"/>
-        <div class="header-right">
-          <button class="upgrade-btn" id="upgradeBtn">Premium</button>
-          <div id="authContainer"></div>
-          <div class="profile" id="profile" style="display:none;">
-            <img id="profileImg" src="" alt=""/>
-            <span id="profileName"></span>
-          </div>
-        </div>
-      </header>
-
-      <section class="page" id="pageContainer"></section>
-    </main>
-
-    <!-- Player Bar (CLEAN & SMOOTH) -->
+    <!-- Player Bar -->
     <footer class="player-bar">
-      <div class="player-left">
-        <img id="nowCover" src="" alt=""/>
-        <div class="now-playing">
-          <p id="nowTitle">—</p>
-          <p id="nowArtist">—</p>
+        <div class="player-left">
+            <div class="current-track-image" id="currentTrackImage">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            </div>
+            <div class="current-track-info">
+                <div class="current-track-title" id="currentTrackTitle">Choose a song</div>
+                <div class="current-track-artist" id="currentTrackArtist">Select music to play</div>
+            </div>
+            <button class="like-btn" onclick="toggleLike()" id="likeButton">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            </button>
         </div>
-      </div>
-      <div class="player-center">
-        <div class="player-controls">
-          <button id="shuffleBtn">Shuffle</button>
-          <button id="prevBtn">Previous</button>
-          <button id="playPauseBtn">Play</button>
-          <button id="nextBtn">Next</button>
-          <button id="repeatBtn">Repeat</button>
+
+        <div class="player-center">
+            <div class="player-controls">
+                <button class="control-btn" onclick="toggleShuffle()" id="shuffleButton">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+                </button>
+                <button class="control-btn" onclick="previousTrack()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </button>
+                <button class="play-pause-btn" onclick="togglePlay()" id="playButton">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="pauseIcon" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="control-btn" onclick="nextTrack()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </button>
+                <button class="control-btn" onclick="toggleRepeat()" id="repeatButton">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+                </button>
+            </div>
+            <div class="progress-container">
+                <span class="time-display" id="currentTime">0:00</span>
+                <div class="progress-bar" onclick="seekTo(event)" id="progressBar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+                <span class="time-display" id="duration">0:00</span>
+            </div>
         </div>
-        <div class="progress-bar">
-          <span id="progressTime">0:00</span>
-          <div class="progress-track" id="progressTrack">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <span id="durationTime">0:00</span>
+
+        <div class="player-right">
+            <button class="control-btn" onclick="toggleQueue()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
+            </button>
+            <button class="control-btn" onclick="toggleDevices()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg>
+            </button>
+            <div class="volume-container">
+                <button class="control-btn" onclick="toggleMute()" id="volumeButton">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" id="volumeIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                </button>
+                <div class="volume-bar" onclick="setVolume(event)" id="volumeBar">
+                    <div class="volume-fill" id="volumeLevel" style="width: 70%;"></div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="player-right">
-        <div class="volume-wrapper">
-          <span>Volume</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80"/>
-        </div>
-      </div>
     </footer>
-  </div>
 
-  <!-- Log Panel -->
-  <aside class="log-panel" id="logPanel">
-    <div class="log-header">
-      <h4>Update Log</h4>
-      <button id="closeLog">Close</button>
+    <!-- Voice Control -->
+    <div class="voice-control">
+        <div class="voice-feedback" id="voiceFeedback"></div>
+        <button class="voice-btn" onclick="toggleVoiceControl()" id="voiceBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+        </button>
     </div>
-    <ul id="logList"></ul>
-    <div class="watermark">Made with Love by Vesni & Forca Team</div>
-  </aside>
 
-  <!-- Online Counter -->
-  <div class="online-counter"><span class="dot"></span><span id="onlineNum">0</span> online</div>
+    <!-- YouTube Player (Hidden) -->
+    <div id="youtubePlayer" style="display: none;"></div>
 
-  <!-- Hidden YouTube Player -->
-  <div id="ytPlayerContainer" style="position:absolute; left:-9999px;"></div>
-</div>
+    <!-- Modals -->
+    <div id="playlistModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header">Create Playlist</h2>
+            <form onsubmit="submitPlaylist(event)">
+                <div class="form-group">
+                    <label for="playlistName" class="form-label">Playlist Name</label>
+                    <input type="text" id="playlistName" class="form-input" placeholder="My Playlist #1" required>
+                </div>
+                <div class="form-group">
+                    <label for="playlistDescription" class="form-label">Description (optional)</label>
+                    <textarea id="playlistDescription" class="form-textarea" placeholder="Add a description..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('playlistModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script src="script.js"></script>
-</body>
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header">Profile Settings</h2>
+            <form onsubmit="updateProfile(event)">
+                <div class="form-group">
+                    <label for="displayName" class="form-label">Display Name</label>
+                    <input type="text" id="displayName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="bio" class="form-label">Bio</label>
+                    <textarea id="bio" class="form-textarea" placeholder="Tell us about yourself..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="favoriteGenre" class="form-label">Favorite Genre</label>
+                    <select id="favoriteGenre" class="form-select">
+                        <option value="pop">Pop</option>
+                        <option value="rock">Rock</option>
+                        <option value="hip-hop">Hip-Hop</option>
+                        <option value="electronic">Electronic</option>
+                        <option value="jazz">Jazz</option>
+                        <option value="classical">Classical</option>
+                        <option value="country">Country</option>
+                        <option value="r&b">R&B</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('profileModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header">Admin Panel</h2>
+            <div class="admin-section">
+                <div class="form-group">
+                    <label for="premiumEmail" class="form-label">Grant Premium Access</label>
+                    <input type="email" id="premiumEmail" class="form-input" placeholder="user@example.com">
+                    <button onclick="grantPremium()" class="btn-primary" style="margin-top: 8px;">Grant Premium</button>
+                </div>
+            </div>
+            <div class="admin-section">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 16px;">Premium Users</h3>
+                <div id="premiumUsersList" class="premium-users-list">
+                    <!-- Premium users list will be populated -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('adminModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Limit Modal -->
+    <div id="timeLimitModal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <h2 class="modal-header">Time Limit Reached</h2>
+            <p style="color: #b3b3b3; margin-bottom: 32px;">Your 4-hour free listening time has ended. Upgrade to Premium for unlimited access!</p>
+            <div class="modal-actions" style="justify-content: center;">
+                <button class="btn-primary" onclick="signInWithGoogle()">
+                    Get Premium
+                </button>
+                <button class="btn-secondary" onclick="closeModal('timeLimitModal')">
+                    Maybe Later
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Redeem Code Modal -->
+    <div id="redeemModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header">Redeem Premium Code</h2>
+            <p style="color: #b3b3b3; margin-bottom: 24px;">Enter your premium code to get 1 month of Soundify Premium!</p>
+            <form onsubmit="redeemCode(event)">
+                <div class="form-group">
+                    <label for="redeemCodeInput" class="form-label">Premium Code</label>
+                    <input type="text" id="redeemCodeInput" class="form-input" placeholder="Enter your code here..." required style="text-transform: uppercase;">
+                </div>
+                <div id="redeemMessage" style="margin-top: 16px; padding: 12px; border-radius: 4px; display: none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('redeemModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Redeem Code</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPei3-puz3fsbrhk0s6l6rZGd30Mly2kk",
+            authDomain: "soundify-67929.firebaseapp.com",
+            projectId: "soundify-67929",
+            storageBucket: "soundify-67929.firebasestorage.app",
+            messagingSenderId: "278902873913",
+            appId: "1:278902873913:web:a198391fee0ea00d78d2e8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Extended music data with 200+ top songs
+        const musicData = {
+            tracks: [
+                // Pop Hits
+                { id: 1, title: "Anti-Hero", artist: "Taylor Swift", album: "Midnights", duration: "3:20", youtubeId: "b1kbLWvqugk", genre: "pop" },
+                { id: 2, title: "As It Was", artist: "Harry Styles", album: "Harry's House", duration: "2:47", youtubeId: "H5v3kku4y6Q", genre: "pop" },
+                { id: 3, title: "Flowers", artist: "Miley Cyrus", album: "Endless Summer Vacation", duration: "3:20", youtubeId: "G7KNmW9a75Y", genre: "pop" },
+                { id: 4, title: "Unholy", artist: "Sam Smith ft. Kim Petras", album: "Gloria", duration: "2:36", youtubeId: "Uq9gPaIzbe8", genre: "pop" },
+                { id: 5, title: "Vampire", artist: "Olivia Rodrigo", album: "GUTS", duration: "3:39", youtubeId: "RlPNh_PBZb4", genre: "pop" },
+                { id: 6, title: "Calm Down", artist: "Rema & Selena Gomez", album: "Rave & Roses", duration: "3:59", youtubeId: "WcIcVapfqXw", genre: "pop" },
+                { id: 7, title: "Shivers", artist: "Ed Sheeran", album: "=", duration: "3:27", youtubeId: "Il0S8BoucSA", genre: "pop" },
+                { id: 8, title: "Stay", artist: "The Kid LAROI & Justin Bieber", album: "F*CK LOVE 3", duration: "2:21", youtubeId: "kTJczUoc26U", genre: "pop" },
+                { id: 9, title: "Levitating", artist: "Dua Lipa", album: "Future Nostalgia", duration: "3:23", youtubeId: "TUVcZfQe-Kw", genre: "pop" },
+                { id: 10, title: "Blinding Lights", artist: "The Weeknd", album: "After Hours", duration: "3:20", youtubeId: "4NRXx6U8ABQ", genre: "pop" },
+                { id: 11, title: "Watermelon Sugar", artist: "Harry Styles", album: "Fine Line", duration: "2:54", youtubeId: "E07s5ZYygMg", genre: "pop" },
+                { id: 12, title: "Good 4 U", artist: "Olivia Rodrigo", album: "SOUR", duration: "2:58", youtubeId: "gNi_6U5Pm_o", genre: "pop" },
+                { id: 13, title: "Peaches", artist: "Justin Bieber ft. Daniel Caesar", album: "Justice", duration: "3:18", youtubeId: "tQ0yjYUFKAE", genre: "pop" },
+                { id: 14, title: "Starboy", artist: "The Weeknd ft. Daft Punk", album: "Starboy", duration: "3:50", youtubeId: "34Na4j8AVgA", genre: "pop" },
+                { id: 15, title: "Shape of You", artist: "Ed Sheeran", album: "÷", duration: "3:53", youtubeId: "JGwWNGJdvx8", genre: "pop" },
+                { id: 16, title: "Perfect", artist: "Ed Sheeran", album: "÷", duration: "4:23", youtubeId: "2Vv-BfVoq4g", genre: "pop" },
+                { id: 17, title: "Someone Like You", artist: "Adele", album: "21", duration: "4:45", youtubeId: "hLQl3WQQoQ0", genre: "pop" },
+                { id: 18, title: "Rolling in the Deep", artist: "Adele", album: "21", duration: "3:48", youtubeId: "rYEDA3JcQqw", genre: "pop" },
+                { id: 19, title: "Hello", artist: "Adele", album: "25", duration: "4:55", youtubeId: "YQHsXMglC9A", genre: "pop" },
+                { id: 20, title: "Bad Guy", artist: "Billie Eilish", album: "When We All Fall Asleep", duration: "3:14", youtubeId: "DyDfgMOUjCI", genre: "pop" },
+                { id: 21, title: "Happier Than Ever", artist: "Billie Eilish", album: "Happier Than Ever", duration: "4:58", youtubeId: "5GJWxDKyk3A", genre: "pop" },
+                { id: 22, title: "Therefore I Am", artist: "Billie Eilish", album: "Happier Than Ever", duration: "2:54", youtubeId: "RUQl6YcMalg", genre: "pop" },
+                { id: 23, title: "Lovely", artist: "Billie Eilish & Khalid", album: "13 Reasons Why", duration: "3:20", youtubeId: "V1Pl8CzNzCw", genre: "pop" },
+                { id: 24, title: "Drivers License", artist: "Olivia Rodrigo", album: "SOUR", duration: "4:02", youtubeId: "ZmDBbnmKpqQ", genre: "pop" },
+                { id: 25, title: "Deja Vu", artist: "Olivia Rodrigo", album: "SOUR", duration: "3:35", youtubeId: "_C_3rtPcP1c", genre: "pop" },
+
+                // Hip-Hop & Rap
+                { id: 26, title: "Bad Habit", artist: "Steve Lacy", album: "Gemini Rights", duration: "3:51", youtubeId: "VF-r5TtlT9w", genre: "hip-hop" },
+                { id: 27, title: "Creepin'", artist: "Metro Boomin, The Weeknd, 21 Savage", album: "Heroes & Villains", duration: "3:41", youtubeId: "wGFIAWRUAaU", genre: "hip-hop" },
+                { id: 28, title: "Industry Baby", artist: "Lil Nas X ft. Jack Harlow", album: "MONTERO", duration: "3:32", youtubeId: "UTHLKHL_whs", genre: "hip-hop" },
+                { id: 29, title: "Sunflower", artist: "Post Malone & Swae Lee", album: "Spider-Verse Soundtrack", duration: "2:38", youtubeId: "ApXoWvfEYVU", genre: "hip-hop" },
+                { id: 30, title: "God's Plan", artist: "Drake", album: "Scorpion", duration: "3:19", youtubeId: "xpVfcZ0ZcFM", genre: "hip-hop" },
+                { id: 31, title: "In My Feelings", artist: "Drake", album: "Scorpion", duration: "3:37", youtubeId: "DRS_PpOrUZ4", genre: "hip-hop" },
+                { id: 32, title: "Hotline Bling", artist: "Drake", album: "Views", duration: "4:27", youtubeId: "uxpDa-c-4Mc", genre: "hip-hop" },
+                { id: 33, title: "One Dance", artist: "Drake ft. Wizkid & Kyla", album: "Views", duration: "2:54", youtubeId: "GxgqpCdOKak", genre: "hip-hop" },
+                { id: 34, title: "HUMBLE.", artist: "Kendrick Lamar", album: "DAMN.", duration: "2:57", youtubeId: "tvTRZJ-4EyI", genre: "hip-hop" },
+                { id: 35, title: "DNA.", artist: "Kendrick Lamar", album: "DAMN.", duration: "3:05", youtubeId: "NLZRYQMLDW4", genre: "hip-hop" },
+                { id: 36, title: "LOYALTY.", artist: "Kendrick Lamar ft. Rihanna", album: "DAMN.", duration: "3:47", youtubeId: "Dlh-dzB2U4Y", genre: "hip-hop" },
+                { id: 37, title: "Sicko Mode", artist: "Travis Scott ft. Drake", album: "ASTROWORLD", duration: "5:12", youtubeId: "6ONRf7h3Mdk", genre: "hip-hop" },
+                { id: 38, title: "Goosebumps", artist: "Travis Scott ft. Kendrick Lamar", album: "Birds in the Trap", duration: "4:03", youtubeId: "Dst9gZkq1a8", genre: "hip-hop" },
+                { id: 39, title: "Antidote", artist: "Travis Scott", album: "Rodeo", duration: "4:21", youtubeId: "KnZ8h3MRuYg", genre: "hip-hop" },
+                { id: 40, title: "Rockstar", artist: "Post Malone ft. 21 Savage", album: "beerbongs & bentleys", duration: "3:38", youtubeId: "UceaB4D0jpo", genre: "hip-hop" },
+                { id: 41, title: "Circles", artist: "Post Malone", album: "Hollywood's Bleeding", duration: "3:35", youtubeId: "wXhTHyIgQ_U", genre: "hip-hop" },
+                { id: 42, title: "Better Now", artist: "Post Malone", album: "beerbongs & bentleys", duration: "3:51", youtubeId: "UYwF-jdcVjY", genre: "hip-hop" },
+                { id: 43, title: "Congratulations", artist: "Post Malone ft. Quavo", album: "Stoney", duration: "3:40", youtubeId: "SC4xMk98Pdc", genre: "hip-hop" },
+                { id: 44, title: "White Iverson", artist: "Post Malone", album: "Stoney", duration: "4:17", youtubeId: "SLsTskih7_I", genre: "hip-hop" },
+                { id: 45, title: "Old Town Road", artist: "Lil Nas X ft. Billy Ray Cyrus", album: "7 EP", duration: "2:37", youtubeId: "w2Ov5jzm3j8", genre: "hip-hop" },
+                { id: 46, title: "MONTERO (Call Me By Your Name)", artist: "Lil Nas X", album: "MONTERO", duration: "2:17", youtubeId: "6swmTBVI83k", genre: "hip-hop" },
+                { id: 47, title: "That's What I Want", artist: "Lil Nas X", album: "MONTERO", duration: "2:23", youtubeId: "ECDL6Y9bKpk", genre: "hip-hop" },
+                { id: 48, title: "Lucid Dreams", artist: "Juice WRLD", album: "Goodbye & Good Riddance", duration: "3:59", youtubeId: "mzB1VGllGkg", genre: "hip-hop" },
+                { id: 49, title: "All Girls Are The Same", artist: "Juice WRLD", album: "Goodbye & Good Riddance", duration: "2:45", youtubeId: "h3EJICKwITw", genre: "hip-hop" },
+                { id: 50, title: "Robbery", artist: "Juice WRLD", album: "Death Race for Love", duration: "4:02", youtubeId: "iI34LYmJ1Fs", genre: "hip-hop" },
+
+                // Rock & Alternative
+                { id: 51, title: "Heat Waves", artist: "Glass Animals", album: "Dreamland", duration: "3:58", youtubeId: "mRD0-GxqHVo", genre: "rock" },
+                { id: 52, title: "Bohemian Rhapsody", artist: "Queen", album: "A Night at the Opera", duration: "5:55", youtubeId: "fJ9rUzIMcZQ", genre: "rock" },
+                { id: 53, title: "Don't Stop Me Now", artist: "Queen", album: "Jazz", duration: "3:29", youtubeId: "HgzGwKwLmgM", genre: "rock" },
+                { id: 54, title: "We Will Rock You", artist: "Queen", album: "News of the World", duration: "2:02", youtubeId: "-tJYN-eG1zk", genre: "rock" },
+                { id: 55, title: "Another One Bites the Dust", artist: "Queen", album: "The Game", duration: "3:36", youtubeId: "rY0WxgSXdEE", genre: "rock" },
+                { id: 56, title: "Somebody to Love", artist: "Queen", album: "A Day at the Races", duration: "4:56", youtubeId: "kijpcUv-b8M", genre: "rock" },
+                { id: 57, title: "Stairway to Heaven", artist: "Led Zeppelin", album: "Led Zeppelin IV", duration: "8:02", youtubeId: "QkF3oxziUI4", genre: "rock" },
+                { id: 58, title: "Hotel California", artist: "Eagles", album: "Hotel California", duration: "6:30", youtubeId: "09839DpTctU", genre: "rock" },
+                { id: 59, title: "Sweet Child O' Mine", artist: "Guns N' Roses", album: "Appetite for Destruction", duration: "5:03", youtubeId: "1w7OgIMMRc4", genre: "rock" },
+                { id: 60, title: "Smells Like Teen Spirit", artist: "Nirvana", album: "Nevermind", duration: "5:01", youtubeId: "hTWKbfoikeg", genre: "rock" },
+                { id: 61, title: "Come As You Are", artist: "Nirvana", album: "Nevermind", duration: "3:39", youtubeId: "vabnZ9-ex7o", genre: "rock" },
+                { id: 62, title: "In Bloom", artist: "Nirvana", album: "Nevermind", duration: "4:14", youtubeId: "PbgKEjNBHqM", genre: "rock" },
+                { id: 63, title: "Lithium", artist: "Nirvana", album: "Nevermind", duration: "4:17", youtubeId: "pkcJEvMcnEg", genre: "rock" },
+                { id: 64, title: "Wonderwall", artist: "Oasis", album: "(What's the Story) Morning Glory?", duration: "4:18", youtubeId: "bx1Bh8ZvH84", genre: "rock" },
+                { id: 65, title: "Don't Look Back in Anger", artist: "Oasis", album: "(What's the Story) Morning Glory?", duration: "4:48", youtubeId: "cmpRLQZkTb8", genre: "rock" },
+                { id: 66, title: "Champagne Supernova", artist: "Oasis", album: "(What's the Story) Morning Glory?", duration: "7:27", youtubeId: "tI-5uv4wryI", genre: "rock" },
+                { id: 67, title: "Live Forever", artist: "Oasis", album: "Definitely Maybe", duration: "4:37", youtubeId: "i_2mWhfOhGU", genre: "rock" },
+                { id: 68, title: "Rock and Roll All Nite", artist: "Kiss", album: "Dressed to Kill", duration: "2:47", youtubeId: "3cz2aaTO1xg", genre: "rock" },
+                { id: 69, title: "I Love Rock 'N Roll", artist: "Joan Jett & the Blackhearts", album: "I Love Rock 'N Roll", duration: "2:55", youtubeId: "d9jhDwxt22Y", genre: "rock" },
+                { id: 70, title: "We Are the Champions", artist: "Queen", album: "News of the World", duration: "2:59", youtubeId: "04854XqcfCY", genre: "rock" },
+                { id: 71, title: "Thunderstruck", artist: "AC/DC", album: "The Razors Edge", duration: "4:52", youtubeId: "v2AC41dglnM", genre: "rock" },
+                { id: 72, title: "Back in Black", artist: "AC/DC", album: "Back in Black", duration: "4:15", youtubeId: "pAgnJDJN4VA", genre: "rock" },
+                { id: 73, title: "Highway to Hell", artist: "AC/DC", album: "Highway to Hell", duration: "3:28", youtubeId: "l482T0yNkeo", genre: "rock" },
+                { id: 74, title: "You Shook Me All Night Long", artist: "AC/DC", album: "Back in Black", duration: "3:30", youtubeId: "Lo2qQmj0_h4", genre: "rock" },
+                { id: 75, title: "TNT", artist: "AC/DC", album: "T.N.T.", duration: "3:34", youtubeId: "pR30knJs4Xk", genre: "rock" },
+
+                // Electronic & Dance
+                { id: 76, title: "Titanium", artist: "David Guetta ft. Sia", album: "Nothing but the Beat", duration: "4:05", youtubeId: "JRfuAukYTKg", genre: "electronic" },
+                { id: 77, title: "Wake Me Up", artist: "Avicii", album: "True", duration: "4:07", youtubeId: "IcrbM1l_BoI", genre: "electronic" },
+                { id: 78, title: "Levels", artist: "Avicii", album: "True", duration: "3:18", youtubeId: "_ovdm2yX4MA", genre: "electronic" },
+                { id: 79, title: "Hey Brother", artist: "Avicii", album: "True", duration: "4:15", youtubeId: "6Cp6mKbRTQY", genre: "electronic" },
+                { id: 80, title: "Waiting for Love", artist: "Avicii", album: "Stories", duration: "3:50", youtubeId: "cHHLHGNpCSA", genre: "electronic" },
+                { id: 81, title: "The Nights", artist: "Avicii", album: "Stories", duration: "2:56", youtubeId: "UtF6Jej8yb4", genre: "electronic" },
+                { id: 82, title: "Addicted to You", artist: "Avicii", album: "Stories", duration: "2:29", youtubeId: "Qc9c12q3mrc", genre: "electronic" },
+                { id: 83, title: "Clarity", artist: "Zedd ft. Foxes", album: "Clarity", duration: "4:31", youtubeId: "IxxstCcJlsc", genre: "electronic" },
+                { id: 84, title: "Stay the Night", artist: "Zedd ft. Hayley Williams", album: "Clarity", duration: "3:37", youtubeId: "i-gyZ35074k", genre: "electronic" },
+                { id: 85, title: "The Middle", artist: "Zedd, Maren Morris, Grey", album: "The Middle", duration: "3:04", youtubeId: "M3N06KyK3s0", genre: "electronic" },
+                { id: 86, title: "Closer", artist: "The Chainsmokers ft. Halsey", album: "Collage EP", duration: "4:04", youtubeId: "PT2_F-1esPk", genre: "electronic" },
+                { id: 87, title: "Don't Let Me Down", artist: "The Chainsmokers ft. Daya", album: "Collage EP", duration: "3:28", youtubeId: "Io0fBr1XBUA", genre: "electronic" },
+                { id: 88, title: "Something Just Like This", artist: "The Chainsmokers & Coldplay", album: "Memories...Do Not Open", duration: "4:07", youtubeId: "FM7MFYoylVs", genre: "electronic" },
+                { id: 89, title: "Paris", artist: "The Chainsmokers", album: "Memories...Do Not Open", duration: "3:37", youtubeId: "RhU9MZ98jxo", genre: "electronic" },
+                { id: 90, title: "Roses", artist: "The Chainsmokers ft. ROZES", album: "Bouquet EP", duration: "3:45", youtubeId: "FyASdjZE0R0", genre: "electronic" },
+                { id: 91, title: "Bangarang", artist: "Skrillex ft. Sirah", album: "Bangarang EP", duration: "3:35", youtubeId: "YJVmu6yttiw", genre: "electronic" },
+                { id: 92, title: "Scary Monsters and Nice Sprites", artist: "Skrillex", album: "Scary Monsters and Nice Sprites", duration: "4:06", youtubeId: "WSeNSzJ2-Jw", genre: "electronic" },
+                { id: 93, title: "First of the Year (Equinox)", artist: "Skrillex", album: "More Monsters and Sprites", duration: "4:07", youtubeId: "2cXDgFwE13g", genre: "electronic" },
+                { id: 94, title: "Cinema", artist: "Skrillex", album: "More Monsters and Sprites", duration: "4:18", youtubeId: "LaIZ0mUJzr0", genre: "electronic" },
+                { id: 95, title: "Breathe Me", artist: "Skrillex", album: "Recess", duration: "4:33", youtubeId: "YQQ2StSwg_s", genre: "electronic" },
+                { id: 96, title: "Animals", artist: "Martin Garrix", album: "Animals", duration: "5:05", youtubeId: "gCYcHz2k5x0", genre: "electronic" },
+                { id: 97, title: "Scared to be Lonely", artist: "Martin Garrix & Dua Lipa", album: "Scared to be Lonely", duration: "3:39", youtubeId: "e2vBLd5Egnk", genre: "electronic" },
+                { id: 98, title: "In the Name of Love", artist: "Martin Garrix & Bebe Rexha", album: "In the Name of Love", duration: "3:24", youtubeId: "RnBT6swva10", genre: "electronic" },
+                { id: 99, title: "There for You", artist: "Martin Garrix & Troye Sivan", album: "There for You", duration: "3:22", youtubeId: "pNNMr5glICM", genre: "electronic" },
+                { id: 100, title: "High on Life", artist: "Martin Garrix ft. Bonn", album: "High on Life", duration: "3:18", youtubeId: "hgKDu5pp_fU", genre: "electronic" },
+
+                // R&B & Soul
+                { id: 101, title: "Blurred Lines", artist: "Robin Thicke ft. T.I. & Pharrell", album: "Blurred Lines", duration: "4:24", youtubeId: "yyDUC1LUXSU", genre: "r&b" },
+                { id: 102, title: "Happy", artist: "Pharrell Williams", album: "Girl", duration: "3:53", youtubeId: "ZbZSe6N_BXs", genre: "r&b" },
+                { id: 103, title: "Get Lucky", artist: "Daft Punk ft. Pharrell Williams", album: "Random Access Memories", duration: "6:07", youtubeId: "5NV6Rdv1a3I", genre: "r&b" },
+                { id: 104, title: "Uptown Funk", artist: "Mark Ronson ft. Bruno Mars", album: "Uptown Special", duration: "4:30", youtubeId: "OPf0YbXqDm0", genre: "r&b" },
+                { id: 105, title: "24K Magic", artist: "Bruno Mars", album: "24K Magic", duration: "3:46", youtubeId: "UqyT8IEBkvY", genre: "r&b" },
+                { id: 106, title: "That's What I Like", artist: "Bruno Mars", album: "24K Magic", duration: "3:26", youtubeId: "PMivT7MJ41M", genre: "r&b" },
+                { id: 107, title: "Finesse", artist: "Bruno Mars ft. Cardi B", album: "24K Magic", duration: "3:35", youtubeId: "LsoLEjrDogU", genre: "r&b" },
+                { id: 108, title: "Just the Way You Are", artist: "Bruno Mars", album: "Doo-Wops & Hooligans", duration: "3:40", youtubeId: "LjhCEhWiKXk", genre: "r&b" },
+                { id: 109, title: "Grenade", artist: "Bruno Mars", album: "Doo-Wops & Hooligans", duration: "3:42", youtubeId: "SR6iYWJxHqs", genre: "r&b" },
+                { id: 110, title: "The Lazy Song", artist: "Bruno Mars", album: "Doo-Wops & Hooligans", duration: "3:15", youtubeId: "fLexgOxsZu0", genre: "r&b" },
+                { id: 111, title: "Count on Me", artist: "Bruno Mars", album: "Doo-Wops & Hooligans", duration: "3:17", youtubeId: "CRsXwuCfbao", genre: "r&b" },
+                { id: 112, title: "Locked Out of Heaven", artist: "Bruno Mars", album: "Unorthodox Jukebox", duration: "3:53", youtubeId: "e-fA-gBCkj0", genre: "r&b" },
+                { id: 113, title: "When I Was Your Man", artist: "Bruno Mars", album: "Unorthodox Jukebox", duration: "3:33", youtubeId: "ekzHIouo8Q4", genre: "r&b" },
+                { id: 114, title: "Treasure", artist: "Bruno Mars", album: "Unorthodox Jukebox", duration: "2:58", youtubeId: "nPvuNsRccVw", genre: "r&b" },
+                { id: 115, title: "Talking to the Moon", artist: "Bruno Mars", album: "Doo-Wops & Hooligans", duration: "3:38", youtubeId: "2PKp0vb-8kU", genre: "r&b" },
+                { id: 116, title: "Thinking Out Loud", artist: "Ed Sheeran", album: "x", duration: "4:41", youtubeId: "lp-EO5I60KA", genre: "r&b" },
+                { id: 117, title: "Photograph", artist: "Ed Sheeran", album: "x", duration: "4:18", youtubeId: "nSDgHBxUbVQ", genre: "r&b" },
+                { id: 118, title: "Castle on the Hill", artist: "Ed Sheeran", album: "÷", duration: "4:21", youtubeId: "K0ibBPhiaG0", genre: "r&b" },
+                { id: 119, title: "Galway Girl", artist: "Ed Sheeran", album: "÷", duration: "2:50", youtubeId: "87gWaABqGYs", genre: "r&b" },
+                { id: 120, title: "Happier", artist: "Ed Sheeran", album: "÷", duration: "3:27", youtubeId: "iAeYPfrXwk4", genre: "r&b" },
+                { id: 121, title: "Bad Habits", artist: "Ed Sheeran", album: "=", duration: "3:51", youtubeId: "orJSJGHjBLI", genre: "r&b" },
+                { id: 122, title: "Overpass Graffiti", artist: "Ed Sheeran", album: "=", duration: "3:56", youtubeId: "3ujkJy_IXZE", genre: "r&b" },
+                { id: 123, title: "The A Team", artist: "Ed Sheeran", album: "+", duration: "4:18", youtubeId: "UAWcs5H-qgQ", genre: "r&b" },
+                { id: 124, title: "Lego House", artist: "Ed Sheeran", album: "+", duration: "3:05", youtubeId: "c4BLVznuWnU", genre: "r&b" },
+                { id: 125, title: "Give Me Love", artist: "Ed Sheeran", album: "+", duration: "3:27", youtubeId: "FOjdXSrtUxA", genre: "r&b" },
+
+                // Country
+                { id: 126, title: "The Good Ones", artist: "Gabby Barrett", album: "Goldmine", duration: "2:45", youtubeId: "kJQNOjeXJDo", genre: "country" },
+                { id: 127, title: "Heartbreak on the Map", artist: "Ryan Hurd", album: "Pelago", duration: "3:12", youtubeId: "X_8Nh5XfRw0", genre: "country" },
+                { id: 128, title: "More Than My Hometown", artist: "Morgan Wallen", album: "Dangerous", duration: "3:20", youtubeId: "d_b3Mb6Y4wE", genre: "country" },
+                { id: 129, title: "Whiskey Glasses", artist: "Morgan Wallen", album: "If I Know Me", duration: "3:53", youtubeId: "NpDYfkymaSE", genre: "country" },
+                { id: 130, title: "Chasin' You", artist: "Morgan Wallen", album: "If I Know Me", duration: "3:20", youtubeId: "9vWvhsej1_8", genre: "country" },
+                { id: 131, title: "7 Summers", artist: "Morgan Wallen", album: "Dangerous", duration: "3:33", youtubeId: "YQeAHRTMJRE", genre: "country" },
+                { id: 132, title: "Sand in My Boots", artist: "Morgan Wallen", album: "Dangerous", duration: "3:06", youtubeId: "0fE5KIyOmd0", genre: "country" },
+                { id: 133, title: "Wasted on You", artist: "Morgan Wallen", album: "Dangerous", duration: "2:58", youtubeId: "VlGNm7_dvz4", genre: "country" },
+                { id: 134, title: "The Way I Talk", artist: "Morgan Wallen", album: "If I Know Me", duration: "3:33", youtubeId: "8cT_Ulmcrys", genre: "country" },
+                { id: 135, title: "Up Down", artist: "Morgan Wallen ft. Florida Georgia Line", album: "If I Know Me", duration: "2:53", youtubeId: "mjIi_J-Ph5g", genre: "country" },
+                { id: 136, title: "10,000 Hours", artist: "Dan + Shay & Justin Bieber", album: "Good Things", duration: "2:47", youtubeId: "BQ_0QLL2gqI", genre: "country" },
+                { id: 137, title: "Speechless", artist: "Dan + Shay", album: "Dan + Shay", duration: "3:20", youtubeId: "GKp7RhiiJ0M", genre: "country" },
+                { id: 138, title: "Tequila", artist: "Dan + Shay", album: "Dan + Shay", duration: "3:03", youtubeId: "yXnPT1qH8qE", genre: "country" },
+                { id: 139, title: "All to Myself", artist: "Dan + Shay", album: "Dan + Shay", duration: "3:15", youtubeId: "zlJDTxahav0", genre: "country" },
+                { id: 140, title: "From the Dining Table", artist: "Harry Styles", album: "Harry Styles", duration: "4:07", youtubeId: "AeAMPHlKe8s", genre: "country" },
+                { id: 141, title: "Body Like a Back Road", artist: "Sam Hunt", album: "Southside", duration: "2:46", youtubeId: "RQdxHi4_Pvc", genre: "country" },
+                { id: 142, title: "House Party", artist: "Sam Hunt", album: "Montevallo", duration: "3:03", youtubeId: "mV_XyJY_jGU", genre: "country" },
+                { id: 143, title: "Take Your Time", artist: "Sam Hunt", album: "Montevallo", duration: "3:26", youtubeId: "yWszeUVTXOE", genre: "country" },
+                { id: 144, title: "Break Up in a Small Town", artist: "Sam Hunt", album: "Montevallo", duration: "3:37", youtubeId: "jYKW_jkjSxE", genre: "country" },
+                { id: 145, title: "Leave the Night On", artist: "Sam Hunt", album: "Montevallo", duration: "3:14", youtubeId: "Qcqhp_PgbZ4", genre: "country" },
+                { id: 146, title: "Kinfolks", artist: "Sam Hunt", album: "Southside", duration: "3:01", youtubeId: "Hn4sfC2PbhI", genre: "country" },
+                { id: 147, title: "Hard to Forget", artist: "Sam Hunt", album: "Southside", duration: "3:06", youtubeId: "qYBeC62Bq5w", genre: "country" },
+                { id: 148, title: "2016", artist: "Sam Hunt", album: "Southside", duration: "3:22", youtubeId: "Hn4sfC2PbhI", genre: "country" },
+                { id: 149, title: "Sinning with You", artist: "Sam Hunt", album: "Southside", duration: "3:18", youtubeId: "Hn4sfC2PbhI", genre: "country" },
+                { id: 150, title: "Young Once", artist: "Sam Hunt", album: "Southside", duration: "3:45", youtubeId: "Hn4sfC2PbhI", genre: "country" },
+
+                // Jazz & Classical
+                { id: 151, title: "Fly Me to the Moon", artist: "Frank Sinatra", album: "It Might as Well Be Swing", duration: "2:29", youtubeId: "5hxibHJOE5E", genre: "jazz" },
+                { id: 152, title: "My Way", artist: "Frank Sinatra", album: "My Way", duration: "4:35", youtubeId: "qQdBunz9Lps", genre: "jazz" },
+                { id: 153, title: "New York, New York", artist: "Frank Sinatra", album: "Trilogy", duration: "3:25", youtubeId: "le1QF3uoQNg", genre: "jazz" },
+                { id: 154, title: "That's Life", artist: "Frank Sinatra", album: "That's Life", duration: "3:07", youtubeId: "TnlPtaPxXfc", genre: "jazz" },
+                { id: 155, title: "I've Got You Under My Skin", artist: "Frank Sinatra", album: "Songs for Swingin' Lovers!", duration: "3:34", youtubeId: "BcL---4xQYA", genre: "jazz" },
+                { id: 156, title: "The Way You Look Tonight", artist: "Frank Sinatra", album: "Songs for Swingin' Lovers!", duration: "3:21", youtubeId: "h9ZGKALMMuc", genre: "jazz" },
+                { id: 157, title: "Come Fly with Me", artist: "Frank Sinatra", album: "Come Fly with Me", duration: "3:19", youtubeId: "HmQq6yLe2ww", genre: "jazz" },
+                { id: 158, title: "Strangers in the Night", artist: "Frank Sinatra", album: "Strangers in the Night", duration: "2:36", youtubeId: "BKuQZgOqL5o", genre: "jazz" },
+                { id: 159, title: "Summer Wind", artist: "Frank Sinatra", album: "Strangers in the Night", duration: "2:55", youtubeId: "4qZKRGgZGUY", genre: "jazz" },
+                { id: 160, title: "Love Is Here to Stay", artist: "Frank Sinatra", album: "Duets", duration: "3:18", youtubeId: "EuJzSTNDUGI", genre: "jazz" },
+                { id: 161, title: "What a Wonderful World", artist: "Louis Armstrong", album: "What a Wonderful World", duration: "2:20", youtubeId: "VqhCQZaH4Vs", genre: "jazz" },
+                { id: 162, title: "Hello, Dolly!", artist: "Louis Armstrong", album: "Hello, Dolly!", duration: "2:25", youtubeId: "kmfeKUNDDYs", genre: "jazz" },
+                { id: 163, title: "La Vie En Rose", artist: "Louis Armstrong", album: "Satch Plays Fats", duration: "3:27", youtubeId: "8IJzYAda1wA", genre: "jazz" },
+                { id: 164, title: "Mack the Knife", artist: "Louis Armstrong", album: "Satch Plays Fats", duration: "3:22", youtubeId: "SEllHMWkXEU", genre: "jazz" },
+                { id: 165, title: "Dream a Little Dream of Me", artist: "Louis Armstrong", album: "What a Wonderful World", duration: "3:05", youtubeId: "PSZxmZmBfnU", genre: "jazz" },
+                { id: 166, title: "Summertime", artist: "Ella Fitzgerald", album: "Porgy and Bess", duration: "4:12", youtubeId: "MIDOmSQJlAc", genre: "jazz" },
+                { id: 167, title: "Cheek to Cheek", artist: "Ella Fitzgerald", album: "Ella and Louis", duration: "5:35", youtubeId: "d3lr9nh7kxY", genre: "jazz" },
+                { id: 168, title: "Misty", artist: "Ella Fitzgerald", album: "Clap Hands, Here Comes Charlie!", duration: "3:17", youtubeId: "look4AooYoo", genre: "jazz" },
+                { id: 169, title: "At Last", artist: "Etta James", album: "At Last!", duration: "3:01", youtubeId: "S-cbOl96RFM", genre: "jazz" },
+                { id: 170, title: "I'd Rather Go Blind", artist: "Etta James", album: "Tell Mama", duration: "2:45", youtubeId: "u9sq3ME0JHQ", genre: "jazz" },
+                { id: 171, title: "Canon in D", artist: "Johann Pachelbel", album: "Classical Masterpieces", duration: "4:24", youtubeId: "NlprozGcs80", genre: "classical" },
+                { id: 172, title: "Für Elise", artist: "Ludwig van Beethoven", album: "Classical Masterpieces", duration: "3:25", youtubeId: "wfF0zHeU3Zs", genre: "classical" },
+                { id: 173, title: "Moonlight Sonata", artist: "Ludwig van Beethoven", album: "Classical Masterpieces", duration: "5:02", youtubeId: "4Tr0otuiQuU", genre: "classical" },
+                { id: 174, title: "Symphony No. 9", artist: "Ludwig van Beethoven", album: "Classical Masterpieces", duration: "8:45", youtubeId: "t3217H8JppI", genre: "classical" },
+                { id: 175, title: "Eine kleine Nachtmusik", artist: "Wolfgang Amadeus Mozart", album: "Classical Masterpieces", duration: "5:50", youtubeId: "hpJ6anurfuw", genre: "classical" },
+
+                // More Pop & Recent Hits
+                { id: 176, title: "Cruel Summer", artist: "Taylor Swift", album: "Lover", duration: "2:58", youtubeId: "ic8j13piAhQ", genre: "pop" },
+                { id: 177, title: "Lover", artist: "Taylor Swift", album: "Lover", duration: "3:41", youtubeId: "FuXNumBwDOM", genre: "pop" },
+                { id: 178, title: "The Man", artist: "Taylor Swift", album: "Lover", duration: "3:10", youtubeId: "AqAJLh9wuZ0", genre: "pop" },
+                { id: 179, title: "ME!", artist: "Taylor Swift ft. Brendon Urie", album: "Lover", duration: "3:13", youtubeId: "FuXNumBwDOM", genre: "pop" },
+                { id: 180, title: "Paper Rings", artist: "Taylor Swift", album: "Lover", duration: "3:42", youtubeId: "8zdg-pOP-gc", genre: "pop" },
+                { id: 181, title: "Cornelia Street", artist: "Taylor Swift", album: "Lover", duration: "4:36", youtubeId: "VikHepA_3Jw", genre: "pop" },
+                { id: 182, title: "Death by a Thousand Cuts", artist: "Taylor Swift", album: "Lover", duration: "3:18", youtubeId: "qbm-wkTZEys", genre: "pop" },
+                { id: 183, title: "Daylight", artist: "Taylor Swift", album: "Lover", duration: "4:54", youtubeId: "3fkEWpPk6Dg", genre: "pop" },
+                { id: 184, title: "cardigan", artist: "Taylor Swift", album: "folklore", duration: "3:59", youtubeId: "K-a8s8OLBSE", genre: "pop" },
+                { id: 185, title: "the 1", artist: "Taylor Swift", album: "folklore", duration: "3:30", youtubeId: "KsZ6tROaVOQ", genre: "pop" },
+                { id: 186, title: "exile", artist: "Taylor Swift ft. Bon Iver", album: "folklore", duration: "4:45", youtubeId: "osdoLjUNFnA", genre: "pop" },
+                { id: 187, title: "my tears ricochet", artist: "Taylor Swift", album: "folklore", duration: "4:15", youtubeId: "OWbDJFtHl3w", genre: "pop" },
+                { id: 188, title: "mirrorball", artist: "Taylor Swift", album: "folklore", duration: "3:28", youtubeId: "plKiWjpwvR0", genre: "pop" },
+                { id: 189, title: "seven", artist: "Taylor Swift", album: "folklore", duration: "3:28", youtubeId: "G8GXkMk2AuA", genre: "pop" },
+                { id: 190, title: "august", artist: "Taylor Swift", album: "folklore", duration: "4:21", youtubeId: "nn_0zPAfyo8", genre: "pop" },
+                { id: 191, title: "this is me trying", artist: "Taylor Swift", album: "folklore", duration: "3:15", youtubeId: "s8jJDVXTunnE", genre: "pop" },
+                { id: 192, title: "illicit affairs", artist: "Taylor Swift", album: "folklore", duration: "3:10", youtubeId: "mvSItvjFE1c", genre: "pop" },
+                { id: 193, title: "invisible string", artist: "Taylor Swift", album: "folklore", duration: "4:12", youtubeId: "Dqd2h0ADfjs", genre: "pop" },
+                { id: 194, title: "mad woman", artist: "Taylor Swift", album: "folklore", duration: "3:57", youtubeId: "2s5xdY6MCeU", genre: "pop" },
+                { id: 195, title: "epiphany", artist: "Taylor Swift", album: "folklore", duration: "4:49", youtubeId: "DUnDkI7l9LQ", genre: "pop" },
+                { id: 196, title: "betty", artist: "Taylor Swift", album: "folklore", duration: "4:54", youtubeId: "6TAPqXkZW_k", genre: "pop" },
+                { id: 197, title: "peace", artist: "Taylor Swift", album: "folklore", duration: "3:54", youtubeId: "DfauBFbdCZw", genre: "pop" },
+                { id: 198, title: "hoax", artist: "Taylor Swift", album: "folklore", duration: "3:40", youtubeId: "nbYQ8VuQBR8", genre: "pop" },
+                { id: 199, title: "willow", artist: "Taylor Swift", album: "evermore", duration: "3:34", youtubeId: "RsEZmictANA", genre: "pop" },
+                { id: 200, title: "champagne problems", artist: "Taylor Swift", album: "evermore", duration: "4:04", youtubeId: "ji6JOEhzNqU", genre: "pop" },
+                { id: 201, title: "gold rush", artist: "Taylor Swift", album: "evermore", duration: "3:05", youtubeId: "Pz-f9mM3Ms8", genre: "pop" },
+                { id: 202, title: "'tis the damn season", artist: "Taylor Swift", album: "evermore", duration: "3:49", youtubeId: "DVBkwWBb2dw", genre: "pop" },
+                { id: 203, title: "tolerate it", artist: "Taylor Swift", album: "evermore", duration: "4:05", youtubeId: "ukxBZN-kBvA", genre: "pop" },
+                { id: 204, title: "no body, no crime", artist: "Taylor Swift ft. HAIM", album: "evermore", duration: "3:35", youtubeId: "3eNXa6beWaY", genre: "pop" },
+                { id: 205, title: "happiness", artist: "Taylor Swift", album: "evermore", duration: "5:15", youtubeId: "1KHjAhKyiG0", genre: "pop" },
+                { id: 206, title: "dorothea", artist: "Taylor Swift", album: "evermore", duration: "3:45", youtubeId: "jxZQs6q-wbI", genre: "pop" },
+                { id: 207, title: "coney island", artist: "Taylor Swift ft. The National", album: "evermore", duration: "4:35", youtubeId: "Zd9jeJk2UHQ", genre: "pop" },
+                { id: 208, title: "ivy", artist: "Taylor Swift", album: "evermore", duration: "4:20", youtubeId: "49WJfeaaqzk", genre: "pop" },
+                { id: 209, title: "cowboy like me", artist: "Taylor Swift", album: "evermore", duration: "4:35", youtubeId: "1KHjAhKyiG0", genre: "pop" },
+                { id: 210, title: "long story short", artist: "Taylor Swift", album: "evermore", duration: "3:35", youtubeId: "1KHjAhKyiG0", genre: "pop" }
+            ],
+            playlists: [
+                { id: 1, name: "Today's Top Hits", description: "The biggest songs right now", tracks: [1, 2, 3, 4, 5, 8, 9, 26, 27, 28] },
+                { id: 2, name: "Chill Vibes", description: "Relax and unwind", tracks: [51, 10, 15, 17, 19, 116, 117, 118, 161, 169] },
+                { id: 3, name: "Workout Mix", description: "Get pumped up", tracks: [28, 29, 30, 40, 52, 71, 72, 73, 91, 96] },
+                { id: 4, name: "Pop Rising", description: "New pop hits", tracks: [1, 2, 4, 5, 8, 13, 14, 20, 21, 176] },
+                { id: 5, name: "Hip-Hop Essentials", description: "The best in hip-hop", tracks: [26, 27, 28, 29, 30, 31, 34, 35, 40, 45] },
+                { id: 6, name: "Rock Classics", description: "Timeless rock anthems", tracks: [52, 53, 54, 57, 58, 59, 60, 64, 71, 72] },
+                { id: 7, name: "Electronic Bangers", description: "Dance floor destroyers", tracks: [76, 77, 78, 83, 86, 87, 91, 96, 97, 98] },
+                { id: 8, name: "R&B Smooth", description: "Smooth R&B vibes", tracks: [104, 105, 106, 108, 109, 112, 113, 114, 116, 117] },
+                { id: 9, name: "Country Roads", description: "Best of country music", tracks: [126, 127, 128, 129, 131, 136, 137, 138, 141, 142] },
+                { id: 10, name: "Jazz Lounge", description: "Classic jazz standards", tracks: [151, 152, 153, 156, 161, 162, 166, 167, 169, 170] },
+                { id: 11, name: "Taylor Swift Hits", description: "Best of Taylor Swift", tracks: [1, 176, 177, 184, 185, 186, 199, 200, 201, 202] },
+                { id: 12, name: "Ed Sheeran Collection", description: "Ed Sheeran's greatest hits", tracks: [7, 15, 16, 116, 117, 118, 119, 121, 123, 124] }
+            ]
+        };
+
+        // App state
+        let currentTrack = null;
+        let isPlaying = false;
+        let currentPlaylist = [];
+        let currentTrackIndex = 0;
+        let isShuffled = false;
+        let repeatMode = 0; // 0: off, 1: all, 2: one
+        let volume = 0.7;
+        let isMuted = false;
+        let likedSongs = new Set();
+        let userPlaylists = [];
+        let currentSection = 'home';
+        let currentUser = null;
+        let isPremium = false;
+        let isAdmin = false;
+        let timeRemaining = 4 * 60 * 60; // 4 hours in seconds
+        let timeInterval = null;
+        let onlineUsers = new Map();
+        let userProfile = {
+            displayName: '',
+            bio: '',
+            favoriteGenre: 'pop'
+        };
+
+        // Premium redeem codes (1 month each)
+        const validRedeemCodes = [
+            'SOUNDIFY2024',
+            'PREMIUM1MONTH',
+            'MUSIC4LIFE',
+            'BEATS2024',
+            'VIBES1MONTH',
+            'AUDIO2024',
+            'STREAM1MONTH',
+            'MELODY2024',
+            'RHYTHM1MONTH',
+            'HARMONY2024',
+            'TUNE1MONTH',
+            'SOUND2024',
+            'PLAY1MONTH',
+            'LISTEN2024',
+            'ENJOY1MONTH'
+        ];
+        let usedRedeemCodes = new Set();
+
+        // Voice Control
+        let isListening = false;
+        let recognition = null;
+
+        // YouTube Player
+        let player;
+        let playerReady = false;
+
+        // Load YouTube API
+        function loadYouTubeAPI() {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        // YouTube API ready callback
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtubePlayer', {
+                height: '0',
+                width: '0',
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 0,
+                    'disablekb': 1,
+                    'fs': 0,
+                    'modestbranding': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            playerReady = true;
+            player.setVolume(volume * 100);
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                nextTrack();
+            } else if (event.data === YT.PlayerState.PLAYING) {
+                isPlaying = true;
+                updatePlayButton();
+                startProgressUpdate();
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                isPlaying = false;
+                updatePlayButton();
+            }
+        }
+
+        // Voice Control Functions
+        function initVoiceControl() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = function() {
+                    isListening = true;
+                    document.getElementById('voiceBtn').classList.add('listening');
+                    showVoiceFeedback('Listening...');
+                };
+
+                recognition.onresult = function(event) {
+                    const command = event.results[0][0].transcript.toLowerCase();
+                    processVoiceCommand(command);
+                };
+
+                recognition.onerror = function(event) {
+                    showVoiceFeedback('Voice recognition error');
+                    stopListening();
+                };
+
+                recognition.onend = function() {
+                    stopListening();
+                };
+            }
+        }
+
+        function toggleVoiceControl() {
+            if (!recognition) {
+                showVoiceFeedback('Voice control not supported');
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        function stopListening() {
+            isListening = false;
+            document.getElementById('voiceBtn').classList.remove('listening');
+            hideVoiceFeedback();
+        }
+
+        function processVoiceCommand(command) {
+            showVoiceFeedback(`Processing: "${command}"`);
+            
+            if (command.includes('play')) {
+                if (command.includes('pause') || command.includes('stop')) {
+                    togglePlay();
+                    showVoiceFeedback('Music paused');
+                } else if (command.includes('next')) {
+                    nextTrack();
+                    showVoiceFeedback('Playing next track');
+                } else if (command.includes('previous') || command.includes('back')) {
+                    previousTrack();
+                    showVoiceFeedback('Playing previous track');
+                } else {
+                    // Search for song
+                    const songMatch = command.match(/play (.+)/);
+                    if (songMatch) {
+                        const songName = songMatch[1];
+                        searchAndPlay(songName);
+                    } else {
+                        togglePlay();
+                        showVoiceFeedback('Music playing');
+                    }
+                }
+            } else if (command.includes('pause') || command.includes('stop')) {
+                if (isPlaying) {
+                    togglePlay();
+                    showVoiceFeedback('Music paused');
+                }
+            } else if (command.includes('next')) {
+                nextTrack();
+                showVoiceFeedback('Playing next track');
+            } else if (command.includes('previous') || command.includes('back')) {
+                previousTrack();
+                showVoiceFeedback('Playing previous track');
+            } else if (command.includes('volume')) {
+                if (command.includes('up') || command.includes('louder')) {
+                    adjustVolume(0.1);
+                    showVoiceFeedback('Volume increased');
+                } else if (command.includes('down') || command.includes('lower') || command.includes('quiet')) {
+                    adjustVolume(-0.1);
+                    showVoiceFeedback('Volume decreased');
+                } else if (command.includes('mute')) {
+                    toggleMute();
+                    showVoiceFeedback(isMuted ? 'Muted' : 'Unmuted');
+                }
+            } else if (command.includes('shuffle')) {
+                toggleShuffle();
+                showVoiceFeedback(isShuffled ? 'Shuffle on' : 'Shuffle off');
+            } else if (command.includes('repeat')) {
+                toggleRepeat();
+                const modes = ['off', 'all', 'one'];
+                showVoiceFeedback(`Repeat ${modes[repeatMode]}`);
+            } else if (command.includes('like') || command.includes('favorite')) {
+                toggleLike();
+                showVoiceFeedback('Song liked');
+            } else if (command.includes('search')) {
+                const searchMatch = command.match(/search (.+)/);
+                if (searchMatch) {
+                    const query = searchMatch[1];
+                    performSearch(query);
+                    showVoiceFeedback(`Searching for: ${query}`);
+                }
+            } else if (command.includes('home')) {
+                showSection('home');
+                showVoiceFeedback('Going to home');
+            } else if (command.includes('library')) {
+                showSection('library');
+                showVoiceFeedback('Opening library');
+            } else {
+                showVoiceFeedback('Command not recognized');
+            }
+
+            setTimeout(hideVoiceFeedback, 3000);
+        }
+
+        function searchAndPlay(songName) {
+            const results = musicData.tracks.filter(track => 
+                track.title.toLowerCase().includes(songName) ||
+                track.artist.toLowerCase().includes(songName)
+            );
+            
+            if (results.length > 0) {
+                playTrack(results[0], results, 0);
+                showVoiceFeedback(`Playing: ${results[0].title}`);
+            } else {
+                showVoiceFeedback('Song not found');
+            }
+        }
+
+        function adjustVolume(change) {
+            volume = Math.max(0, Math.min(1, volume + change));
+            if (playerReady) {
+                player.setVolume(volume * 100);
+            }
+            updateVolumeDisplay();
+        }
+
+        function showVoiceFeedback(message) {
+            const feedback = document.getElementById('voiceFeedback');
+            feedback.textContent = message;
+            feedback.classList.add('show');
+        }
+
+        function hideVoiceFeedback() {
+            const feedback = document.getElementById('voiceFeedback');
+            feedback.classList.remove('show');
+        }
+
+        // Initialize app
+        function initApp() {
+            loadYouTubeAPI();
+            initVoiceControl();
+            populateHomeSection();
+            updateVolumeDisplay();
+            
+            // Auth state listener
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadUserData();
+                    updateUIForUser();
+                    startOnlinePresence();
+                    if (!isPremium) {
+                        startTimeLimit();
+                    }
+                } else {
+                    currentUser = null;
+                    isPremium = false;
+                    isAdmin = false;
+                    updateUIForGuest();
+                    stopOnlinePresence();
+                    stopTimeLimit();
+                }
+            });
+            
+            // Load online users
+            loadOnlineUsers();
+        }
+
+        // Authentication functions
+        async function signInWithGoogle() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error('Sign in error:', error);
+            }
+        }
+
+        async function signOut() {
+            try {
+                await auth.signOut();
+            } catch (error) {
+                console.error('Sign out error:', error);
+            }
+        }
+
+        // User data functions
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                // Load user profile
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    userProfile = { ...userProfile, ...userData.profile };
+                    isPremium = userData.isPremium || false;
+                    likedSongs = new Set(userData.likedSongs || []);
+                    userPlaylists = userData.playlists || [];
+                    
+                    // Check if premium has expired
+                    if (isPremium && userData.premiumExpiresAt) {
+                        const expirationDate = userData.premiumExpiresAt.toDate();
+                        if (new Date() > expirationDate) {
+                            isPremium = false;
+                            await db.collection('users').doc(currentUser.uid).update({
+                                isPremium: false
+                            });
+                        }
+                    }
+                    
+                    // Load used redeem codes
+                    const userUsedCodes = userData.usedRedeemCodes || [];
+                    userUsedCodes.forEach(code => usedRedeemCodes.add(code));
+                }
+                
+                // Check if admin
+                isAdmin = currentUser.email === 'vesni277@gmail.com';
+                
+                // Create/update user document
+                await db.collection('users').doc(currentUser.uid).set({
+                    email: currentUser.email,
+                    displayName: currentUser.displayName,
+                    photoURL: currentUser.photoURL,
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                    profile: userProfile,
+                    isPremium: isPremium,
+                    likedSongs: Array.from(likedSongs),
+                    playlists: userPlaylists
+                }, { merge: true });
+                
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        async function saveUserData() {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    profile: userProfile,
+                    likedSongs: Array.from(likedSongs),
+                    playlists: userPlaylists,
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Error saving user data:', error);
+            }
+        }
+
+        // Premium functions
+        async function grantPremium() {
+            if (!isAdmin) return;
+            
+            const email = document.getElementById('premiumEmail').value;
+            if (!email) return;
+            
+            try {
+                // Find user by email
+                const usersQuery = await db.collection('users').where('email', '==', email).get();
+                
+                if (usersQuery.empty) {
+                    alert('User not found');
+                    return;
+                }
+                
+                // Grant premium to user
+                usersQuery.forEach(async (doc) => {
+                    await doc.ref.update({ 
+                        isPremium: true,
+                        premiumExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+                    });
+                });
+                
+                document.getElementById('premiumEmail').value = '';
+                loadPremiumUsers();
+                alert('Premium granted successfully!');
+                
+            } catch (error) {
+                console.error('Error granting premium:', error);
+                alert('Error granting premium');
+            }
+        }
+
+        async function redeemCode(event) {
+            event.preventDefault();
+            
+            if (!currentUser) {
+                showRedeemMessage('Please sign in first to redeem a code.', 'error');
+                return;
+            }
+            
+            const code = document.getElementById('redeemCodeInput').value.toUpperCase().trim();
+            
+            if (!validRedeemCodes.includes(code)) {
+                showRedeemMessage('Invalid redeem code. Please check and try again.', 'error');
+                return;
+            }
+            
+            if (usedRedeemCodes.has(code)) {
+                showRedeemMessage('This code has already been used.', 'error');
+                return;
+            }
+            
+            try {
+                // Check if user already used this code
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                const userUsedCodes = userData.usedRedeemCodes || [];
+                
+                if (userUsedCodes.includes(code)) {
+                    showRedeemMessage('You have already used this code.', 'error');
+                    return;
+                }
+                
+                // Grant 1 month premium
+                const premiumExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+                
+                await db.collection('users').doc(currentUser.uid).update({
+                    isPremium: true,
+                    premiumExpiresAt: premiumExpiresAt,
+                    usedRedeemCodes: [...userUsedCodes, code]
+                });
+                
+                // Mark code as used globally
+                usedRedeemCodes.add(code);
+                
+                // Update local state
+                isPremium = true;
+                
+                showRedeemMessage('🎉 Success! You now have 1 month of Soundify Premium!', 'success');
+                
+                // Update UI
+                updateUIForUser();
+                
+                // Close modal after 2 seconds
+                setTimeout(() => {
+                    closeModal('redeemModal');
+                    document.getElementById('redeemCodeInput').value = '';
+                    document.getElementById('redeemMessage').style.display = 'none';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error redeeming code:', error);
+                showRedeemMessage('Error redeeming code. Please try again.', 'error');
+            }
+        }
+
+        function showRedeemMessage(message, type) {
+            const messageDiv = document.getElementById('redeemMessage');
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                messageDiv.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+                messageDiv.style.color = '#10b981';
+                messageDiv.style.border = '1px solid #10b981';
+            } else {
+                messageDiv.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                messageDiv.style.color = '#ef4444';
+                messageDiv.style.border = '1px solid #ef4444';
+            }
+        }
+
+        async function loadPremiumUsers() {
+            if (!isAdmin) return;
+            
+            try {
+                const premiumQuery = await db.collection('users').where('isPremium', '==', true).get();
+                const premiumList = document.getElementById('premiumUsersList');
+                
+                premiumList.innerHTML = '';
+                premiumQuery.forEach((doc) => {
+                    const userData = doc.data();
+                    const userElement = document.createElement('div');
+                    userElement.className = 'premium-user-item';
+                    userElement.innerHTML = `
+                        <span style="font-size: 14px;">${userData.email}</span>
+                        <button onclick="revokePremium('${doc.id}')" class="revoke-btn">Revoke</button>
+                    `;
+                    premiumList.appendChild(userElement);
+                });
+            } catch (error) {
+                console.error('Error loading premium users:', error);
+            }
+        }
+
+        async function revokePremium(userId) {
+            if (!isAdmin) return;
+            
+            try {
+                await db.collection('users').doc(userId).update({ isPremium: false });
+                loadPremiumUsers();
+            } catch (error) {
+                console.error('Error revoking premium:', error);
+            }
+        }
+
+        // Time limit functions
+        function startTimeLimit() {
+            if (isPremium) return;
+            
+            timeInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimeDisplay();
+                
+                if (timeRemaining <= 0) {
+                    stopTimeLimit();
+                    pauseMusic();
+                    document.getElementById('timeLimitModal').classList.add('show');
+                }
+            }, 1000);
+        }
+
+        function stopTimeLimit() {
+            if (timeInterval) {
+                clearInterval(timeInterval);
+                timeInterval = null;
+            }
+        }
+
+        function updateTimeDisplay() {
+            const hours = Math.floor(timeRemaining / 3600);
+            const minutes = Math.floor((timeRemaining % 3600) / 60);
+            const seconds = timeRemaining % 60;
+            
+            const timeString = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timeLeft').textContent = timeString;
+        }
+
+        function pauseMusic() {
+            if (playerReady && isPlaying) {
+                player.pauseVideo();
+            }
+        }
+
+        // Online presence functions
+        function startOnlinePresence() {
+            if (!currentUser) return;
+            
+            const userRef = db.collection('online').doc(currentUser.uid);
+            
+            // Set user as online
+            userRef.set({
+                uid: currentUser.uid,
+                displayName: currentUser.displayName || 'Anonymous',
+                email: currentUser.email,
+                photoURL: currentUser.photoURL,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Remove user when they disconnect
+            userRef.onDisconnect().delete();
+        }
+
+        function stopOnlinePresence() {
+            if (!currentUser) return;
+            
+            db.collection('online').doc(currentUser.uid).delete();
+        }
+
+        function loadOnlineUsers() {
+            db.collection('online').onSnapshot((snapshot) => {
+                onlineUsers.clear();
+                snapshot.forEach((doc) => {
+                    onlineUsers.set(doc.id, doc.data());
+                });
+                updateOnlineUsersDisplay();
+            });
+        }
+
+        function updateOnlineUsersDisplay() {
+            const container = document.getElementById('onlineUsers');
+            container.innerHTML = '';
+            
+            const count = Math.max(5, Math.min(91, onlineUsers.size + Math.floor(Math.random() * 87) + 5));
+            const countElement = document.createElement('div');
+            countElement.style.cssText = 'font-size: 12px; color: #1DB954; margin-bottom: 12px;';
+            countElement.textContent = `${count} users online`;
+            container.appendChild(countElement);
+            
+            let displayCount = 0;
+            onlineUsers.forEach((userData, uid) => {
+                if (displayCount >= 5) return; // Show max 5 users
+                
+                const userElement = document.createElement('div');
+                userElement.className = 'online-user';
+                userElement.innerHTML = `
+                    <div class="online-dot"></div>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${userData.displayName}</span>
+                `;
+                container.appendChild(userElement);
+                displayCount++;
+            });
+            
+            if (onlineUsers.size > 5) {
+                const moreElement = document.createElement('div');
+                moreElement.style.cssText = 'font-size: 12px; color: #b3b3b3;';
+                moreElement.textContent = `+${onlineUsers.size - 5} more`;
+                container.appendChild(moreElement);
+            }
+        }
+
+        // Profile functions
+        function showProfile() {
+            if (!currentUser) return;
+            
+            document.getElementById('displayName').value = userProfile.displayName || currentUser.displayName || '';
+            document.getElementById('bio').value = userProfile.bio || '';
+            document.getElementById('favoriteGenre').value = userProfile.favoriteGenre || 'pop';
+            
+            document.getElementById('profileModal').classList.add('show');
+        }
+
+        async function updateProfile(event) {
+            event.preventDefault();
+            
+            userProfile.displayName = document.getElementById('displayName').value;
+            userProfile.bio = document.getElementById('bio').value;
+            userProfile.favoriteGenre = document.getElementById('favoriteGenre').value;
+            
+            await saveUserData();
+            closeModal('profileModal');
+            updateUIForUser();
+        }
+
+        // UI update functions
+        function updateUIForUser() {
+            document.getElementById('authButtons').classList.add('hidden');
+            document.getElementById('userProfile').classList.remove('hidden');
+            
+            if (isPremium) {
+                document.getElementById('premiumBadge').classList.remove('hidden');
+                document.getElementById('timeRemaining').classList.add('hidden');
+                document.getElementById('upgradeBtn').classList.add('hidden');
+            } else {
+                document.getElementById('premiumBadge').classList.add('hidden');
+                document.getElementById('timeRemaining').classList.remove('hidden');
+                document.getElementById('upgradeBtn').classList.remove('hidden');
+                updateTimeDisplay();
+            }
+            
+            // Update profile picture
+            const profilePic = document.getElementById('profilePic');
+            if (currentUser.photoURL) {
+                profilePic.innerHTML = `<img src="${currentUser.photoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%;">`;
+            }
+            
+            // Show admin panel if admin
+            if (isAdmin) {
+                const upgradeBtn = document.getElementById('upgradeBtn');
+                upgradeBtn.textContent = 'Admin Panel';
+                upgradeBtn.onclick = () => {
+                    document.getElementById('adminModal').classList.add('show');
+                    loadPremiumUsers();
+                };
+            }
+        }
+
+        function updateUIForGuest() {
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('userProfile').classList.add('hidden');
+            document.getElementById('premiumBadge').classList.add('hidden');
+            document.getElementById('timeRemaining').classList.add('hidden');
+        }
+
+        // Navigation functions
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(section + 'Section').classList.add('active');
+            currentSection = section;
+            
+            // Update sidebar active state
+            document.querySelectorAll('.nav-link').forEach(a => {
+                a.classList.remove('active');
+            });
+            event.target.closest('.nav-link').classList.add('active');
+
+            if (section === 'library') {
+                populateLibrary();
+            }
+        }
+
+        function goBack() {
+            // Simple back functionality
+            if (currentSection !== 'home') {
+                showSection('home');
+            }
+        }
+
+        function goForward() {
+            // Simple forward functionality
+            console.log('Forward navigation');
+        }
+
+        // Search functionality
+        function handleSearch(event) {
+            const query = event.target.value.toLowerCase();
+            if (event.key === 'Enter' && query) {
+                performSearch(query);
+            }
+        }
+
+        function performSearch(query) {
+            showSection('search');
+            const results = musicData.tracks.filter(track => 
+                track.title.toLowerCase().includes(query) ||
+                track.artist.toLowerCase().includes(query) ||
+                track.album.toLowerCase().includes(query)
+            );
+            displaySearchResults(results);
+        }
+
+        function searchByGenre(genre) {
+            const results = musicData.tracks.filter(track => track.genre === genre);
+            displaySearchResults(results);
+        }
+
+        function displaySearchResults(results) {
+            const searchResults = document.getElementById('searchResults');
+            const searchResultsList = document.getElementById('searchResultsList');
+            
+            searchResults.classList.add('active');
+            searchResultsList.innerHTML = '';
+
+            if (results.length === 0) {
+                searchResultsList.innerHTML = '<p style="color: #b3b3b3; padding: 20px; text-align: center;">No results found</p>';
+                return;
+            }
+
+            results.forEach((track, index) => {
+                const trackElement = document.createElement('div');
+                trackElement.className = 'track-item';
+                trackElement.onclick = () => playTrack(track, results, index);
+                
+                trackElement.innerHTML = `
+                    <div class="track-number">${index + 1}</div>
+                    <div class="track-image">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">${track.title}</div>
+                        <div class="track-artist">${track.artist}</div>
+                    </div>
+                    <div class="track-album">${track.album}</div>
+                    <div class="track-duration">${track.duration}</div>
+                    <div class="track-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); addToPlaylist(${track.id})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        </button>
+                    </div>
+                `;
+                
+                searchResultsList.appendChild(trackElement);
+            });
+        }
+
+        // Music player functions
+        function playTrack(track, playlist = [], index = 0) {
+            // Check time limit for non-premium users
+            if (!isPremium && timeRemaining <= 0) {
+                document.getElementById('timeLimitModal').classList.add('show');
+                return;
+            }
+            
+            currentTrack = track;
+            currentPlaylist = playlist.length > 0 ? playlist : [track];
+            currentTrackIndex = index;
+            
+            updateCurrentTrackDisplay();
+            
+            if (playerReady && track.youtubeId) {
+                player.loadVideoById(track.youtubeId);
+                player.playVideo();
+            }
+        }
+
+        function togglePlay() {
+            // Check time limit for non-premium users
+            if (!isPremium && timeRemaining <= 0) {
+                document.getElementById('timeLimitModal').classList.add('show');
+                return;
+            }
+            
+            if (!currentTrack) {
+                // Play first track from popular playlist if none selected
+                const firstTrack = musicData.tracks[0];
+                playTrack(firstTrack, musicData.tracks, 0);
+                return;
+            }
+
+            if (playerReady) {
+                if (isPlaying) {
+                    player.pauseVideo();
+                } else {
+                    player.playVideo();
+                }
+            }
+        }
+
+        function nextTrack() {
+            if (currentPlaylist.length === 0) return;
+            
+            if (repeatMode === 2) {
+                // Repeat one
+                playTrack(currentTrack, currentPlaylist, currentTrackIndex);
+                return;
+            }
+            
+            let nextIndex;
+            if (isShuffled) {
+                nextIndex = Math.floor(Math.random() * currentPlaylist.length);
+            } else {
+                nextIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+            }
+            
+            if (nextIndex === 0 && repeatMode === 0) {
+                // End of playlist and no repeat
+                player.pauseVideo();
+                return;
+            }
+            
+            playTrack(currentPlaylist[nextIndex], currentPlaylist, nextIndex);
+        }
+
+        function previousTrack() {
+            if (currentPlaylist.length === 0) return;
+            
+            let prevIndex;
+            if (isShuffled) {
+                prevIndex = Math.floor(Math.random() * currentPlaylist.length);
+            } else {
+                prevIndex = currentTrackIndex === 0 ? currentPlaylist.length - 1 : currentTrackIndex - 1;
+            }
+            
+            playTrack(currentPlaylist[prevIndex], currentPlaylist, prevIndex);
+        }
+
+        function toggleShuffle() {
+            isShuffled = !isShuffled;
+            const shuffleButton = document.getElementById('shuffleButton');
+            if (isShuffled) {
+                shuffleButton.classList.add('active');
+            } else {
+                shuffleButton.classList.remove('active');
+            }
+        }
+
+        function toggleRepeat() {
+            repeatMode = (repeatMode + 1) % 3;
+            const repeatButton = document.getElementById('repeatButton');
+            
+            repeatButton.classList.remove('active');
+            if (repeatMode > 0) {
+                repeatButton.classList.add('active');
+            }
+        }
+
+        async function toggleLike() {
+            if (!currentTrack || !currentUser) return;
+            
+            const likeButton = document.getElementById('likeButton');
+            if (likedSongs.has(currentTrack.id)) {
+                likedSongs.delete(currentTrack.id);
+                likeButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+                likeButton.classList.remove('liked');
+            } else {
+                likedSongs.add(currentTrack.id);
+                likeButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+                likeButton.classList.add('liked');
+            }
+            
+            // Save to Firebase
+            await saveUserData();
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            if (playerReady) {
+                if (isMuted) {
+                    player.mute();
+                } else {
+                    player.unMute();
+                }
+            }
+            updateVolumeDisplay();
+        }
+
+        function setVolume(event) {
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const width = rect.width;
+            volume = x / width;
+            
+            if (playerReady) {
+                player.setVolume(volume * 100);
+            }
+            updateVolumeDisplay();
+        }
+
+        function seekTo(event) {
+            if (!playerReady || !currentTrack) return;
+            
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const width = rect.width;
+            const percentage = x / width;
+            
+            const duration = player.getDuration();
+            const seekTime = duration * percentage;
+            player.seekTo(seekTime);
+        }
+
+        // UI update functions
+        function updateCurrentTrackDisplay() {
+            if (!currentTrack) return;
+            
+            document.getElementById('currentTrackTitle').textContent = currentTrack.title;
+            document.getElementById('currentTrackArtist').textContent = currentTrack.artist;
+            document.getElementById('duration').textContent = currentTrack.duration;
+            
+            // Update like button state
+            const likeButton = document.getElementById('likeButton');
+            if (likedSongs.has(currentTrack.id)) {
+                likeButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+                likeButton.classList.add('liked');
+            } else {
+                likeButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+                likeButton.classList.remove('liked');
+            }
+        }
+
+        function updatePlayButton() {
+            const playIcon = document.getElementById('playIcon');
+            const pauseIcon = document.getElementById('pauseIcon');
+            
+            if (isPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+        }
+
+        function updateVolumeDisplay() {
+            const volumeLevel = document.getElementById('volumeLevel');
+            const volumeIcon = document.getElementById('volumeIcon');
+            
+            if (isMuted || volume === 0) {
+                volumeLevel.style.width = '0%';
+                volumeIcon.innerHTML = '<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 6.646L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 10l2.647 2.646a.5.5 0 0 1-.708.708L8 10.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 10 4.646 7.354a.5.5 0 1 1 .708-.708z"/>';
+            } else {
+                volumeLevel.style.width = (volume * 100) + '%';
+                volumeIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+            }
+        }
+
+        function startProgressUpdate() {
+            setInterval(() => {
+                if (playerReady && isPlaying) {
+                    const currentTime = player.getCurrentTime();
+                    const duration = player.getDuration();
+                    
+                    if (duration > 0) {
+                        const progress = (currentTime / duration) * 100;
+                        document.getElementById('progress').style.width = progress + '%';
+                        document.getElementById('currentTime').textContent = formatTime(currentTime);
+                    }
+                }
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Content population functions
+        function populateHomeSection() {
+            populateRecentlyPlayed();
+            populateMadeForYou();
+            populatePopularPlaylists();
+        }
+
+        function populateRecentlyPlayed() {
+            const container = document.getElementById('recentlyPlayed');
+            const recentTracks = musicData.tracks.slice(0, 5);
+            
+            container.innerHTML = recentTracks.map(track => `
+                <div class="card" onclick="playTrack(musicData.tracks.find(t => t.id === ${track.id}), musicData.tracks, ${musicData.tracks.findIndex(t => t.id === track.id)})">
+                    <div class="card-image">
+                        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                        <button class="play-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                    <h3 class="card-title">${track.title}</h3>
+                    <p class="card-subtitle">${track.artist}</p>
+                </div>
+            `).join('');
+        }
+
+        function populateMadeForYou() {
+            const container = document.getElementById('madeForYou');
+            const playlists = musicData.playlists.slice(0, 5);
+            
+            container.innerHTML = playlists.map(playlist => `
+                <div class="card" onclick="playPlaylist('${playlist.id}')">
+                    <div class="card-image" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6);">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        <button class="play-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                    <h3 class="card-title">${playlist.name}</h3>
+                    <p class="card-subtitle">${playlist.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function populatePopularPlaylists() {
+            const container = document.getElementById('popularPlaylists');
+            const playlists = musicData.playlists.slice(5);
+            
+            container.innerHTML = playlists.map(playlist => `
+                <div class="card" onclick="playPlaylist('${playlist.id}')">
+                    <div class="card-image" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        <button class="play-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                    <h3 class="card-title">${playlist.name}</h3>
+                    <p class="card-subtitle">${playlist.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function populateLibrary() {
+            const container = document.getElementById('libraryContent');
+            const allPlaylists = [...musicData.playlists, ...userPlaylists];
+            
+            container.innerHTML = `
+                <div class="track-list">
+                    ${allPlaylists.map(playlist => `
+                        <div class="track-item" onclick="playPlaylist('${playlist.id}')">
+                            <div class="track-image" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            </div>
+                            <div class="track-info">
+                                <div class="track-title">${playlist.name}</div>
+                                <div class="track-artist">${playlist.description || 'Playlist'}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Playlist functions
+        function playPlaylist(playlistId) {
+            let playlist;
+            if (playlistId === 'liked') {
+                const likedTracks = musicData.tracks.filter(track => likedSongs.has(track.id));
+                if (likedTracks.length > 0) {
+                    playTrack(likedTracks[0], likedTracks, 0);
+                }
+                return;
+            }
+            
+            playlist = musicData.playlists.find(p => p.id == playlistId) || userPlaylists.find(p => p.id == playlistId);
+            if (playlist) {
+                const tracks = playlist.tracks.map(trackId => musicData.tracks.find(t => t.id === trackId)).filter(Boolean);
+                if (tracks.length > 0) {
+                    playTrack(tracks[0], tracks, 0);
+                }
+            }
+        }
+
+        function createPlaylist() {
+            if (!currentUser) {
+                document.querySelector('#authButtons button').click();
+                return;
+            }
+            document.getElementById('playlistModal').classList.add('show');
+        }
+
+        async function submitPlaylist(event) {
+            event.preventDefault();
+            if (!currentUser) return;
+            
+            const name = document.getElementById('playlistName').value;
+            const description = document.getElementById('playlistDescription').value;
+            
+            const newPlaylist = {
+                id: Date.now(),
+                name: name,
+                description: description,
+                tracks: [],
+                createdBy: currentUser.uid,
+                createdAt: new Date().toISOString()
+            };
+            
+            userPlaylists.push(newPlaylist);
+            await saveUserData();
+            closeModal('playlistModal');
+            
+            // Reset form
+            document.getElementById('playlistName').value = '';
+            document.getElementById('playlistDescription').value = '';
+            
+            if (currentSection === 'library') {
+                populateLibrary();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function addToPlaylist(trackId) {
+            console.log('Add track', trackId, 'to playlist');
+            // This would show a playlist selection modal in a real app
+        }
+
+        // Additional functions
+        function filterLibrary(filter) {
+            // Update filter buttons
+            const buttons = document.querySelectorAll('#librarySection button');
+            buttons.forEach(btn => {
+                btn.className = 'btn-secondary';
+                btn.style.fontSize = '14px';
+                btn.style.padding = '8px 16px';
+            });
+            event.target.className = 'btn-primary';
+            event.target.style.fontSize = '14px';
+            event.target.style.padding = '8px 16px';
+            
+            // Filter content based on selection
+            populateLibrary();
+        }
+
+        function showLikedSongs() {
+            showSection('library');
+            // Filter to show only liked songs
+        }
+
+        function toggleQueue() {
+            console.log('Toggle queue');
+        }
+
+        function toggleDevices() {
+            console.log('Toggle devices');
+        }
+
+        function togglePremium() {
+            if (isAdmin) {
+                document.getElementById('adminModal').classList.add('show');
+                loadPremiumUsers();
+            } else if (!currentUser) {
+                signInWithGoogle();
+            } else {
+                // Show redeem code modal for non-premium users
+                document.getElementById('redeemModal').classList.add('show');
+            }
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994a748f67e9779f',t:'MTc2MTQ4Njk2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
