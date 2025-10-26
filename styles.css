@@ -1,112 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Soundify – Your Music Universe</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link rel="icon" href="favicon.ico" type="image/x-icon"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
-</head>
-<body>
-<div class="app">
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'Inter',sans-serif;background:#121212;color:#fff;overflow:hidden;}
+a,button{cursor:pointer;}
+input,button{border:none;outline:none;background:none;color:inherit;font:inherit;}
+button:hover{opacity:0.8;}
 
-  <!-- Sidebar -->
-  <nav class="sidebar">
-    <div class="logo"><img src="logo.png" alt="Soundify"/></div>
-    <ul class="nav-menu">
-      <li><a href="#" data-page="home">Home</a></li>
-      <li><a href="#" data-page="search">Search</a></li>
-      <li><a href="#" data-page="library">Your Library</a></li>
-      <li><a href="#" data-page="recommendations">Recommendations</a></li>
-      <li><a href="#" data-page="queue">Queue</a></li>
-    </ul>
-    <div class="playlist-section">
-      <h3>Playlists</h3>
-      <ul id="playlist-list"></ul>
-      <button id="newPlaylistBtn">+ Create Playlist</button>
-    </div>
-  </nav>
+.app{display:flex;height:100vh;position:relative;}
 
-  <!-- Main Content + Player + Log Panel -->
-  <div class="main-wrapper">
-    <main class="main-content">
-      <header class="header">
-        <button class="nav-toggle" id="navToggle">Menu</button>
-        <input type="text" placeholder="Search songs, artists, playlists…" class="search-bar" id="searchBar"/>
-        <div class="header-right">
-          <button class="upgrade-btn" id="upgradeBtn">Upgrade</button>
-          <div id="authContainer"></div>
-          <div class="profile" id="profile" style="display:none;">
-            <img id="profileImg" src="" alt=""/>
-            <span id="profileName"></span>
-          </div>
-        </div>
-      </header>
+/* Sidebar */
+.sidebar{width:240px;background:#000;padding:20px 0;position:fixed;height:100%;z-index:10;overflow-y:auto;}
+.logo img{height:40px;margin:0 20px 30px;}
+.nav-menu li a{display:block;padding:10px 20px;color:#b3b3b3;font-weight:600;transition:color .2s;}
+.nav-menu li a:hover,.nav-menu li a.active{color:#fff;}
+.playlist-section h3{margin:20px 20px 8px;color:#b3b3b3;font-size:12px;text-transform:uppercase;letter-spacing:1px;}
+.playlist-section ul{list-style:none;}
+.playlist-section li a{display:block;padding:8px 20px;color:#b3b3b3;font-size:14px;}
+.playlist-section li a:hover{color:#fff;}
+#newPlaylistBtn{margin:10px 20px;padding:8px 12px;background:#1ed760;color:#000;border-radius:20px;font-weight:600;}
 
-      <section class="page" id="pageContainer"></section>
-    </main>
+/* Main Wrapper (Content + Player) */
+.main-wrapper{margin-left:240px;display:flex;flex-direction:column;flex:1;height:100vh;}
 
-    <!-- Fixed Player Bar -->
-    <footer class="player-bar">
-      <div class="player-left">
-        <img id="nowCover" src="" alt=""/>
-        <div class="now-playing">
-          <p id="nowTitle">—</p>
-          <p id="nowArtist">—</p>
-        </div>
-      </div>
-      <div class="player-center">
-        <div class="player-controls">
-          <button id="prevBtn">Previous</button>
-          <button id="playPauseBtn">Play</button>
-          <button id="nextBtn">Next</button>
-          <button id="shuffleBtn">🔀</button>
-          <button id="repeatBtn">🔁</button>
-        </div>
-        <div class="progress-bar">
-          <span id="progressTime">0:00</span>
-          <div class="progress-track" id="progressTrack">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <span id="durationTime">0:00</span>
-        </div>
-      </div>
-      <div class="player-right">
-        <button id="visualizerBtn">Visualizer</button>
-        <button id="bassBtn">Bass Boost</button>
-        <button id="shareBtn">Share</button>
-        <button id="sleepBtn">Sleep Timer</button>
-        <div class="volume-wrapper">
-          <button id="volumeBtn">Volume</button>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80"/>
-        </div>
-      </div>
-    </footer>
-  </div>
+/* Main Content */
+.main-content{flex:1;overflow-y:auto;padding:0 20px;}
+.header{height:70px;background:#000;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:5;border-bottom:1px solid #282828;}
+.search-bar{background:#fff;color:#000;padding:10px 16px;border-radius:20px;width:320px;font-size:14px;}
+.upgrade-btn{background:#1ed760;color:#000;padding:8px 16px;border-radius:20px;font-weight:600;margin-right:16px;}
+.auth-btn{background:#1ed760;color:#000;padding:8px 16px;border-radius:20px;margin:0 4px;font-weight:600;}
+.profile img{width:32px;height:32px;border-radius:50%;margin-right:8px;}
+.page{padding:20px 0;}
 
-  <!-- Log Panel (Slim, Clean) -->
-  <aside class="log-panel" id="logPanel">
-    <div class="log-header">
-      <h4>Update Log</h4>
-      <button id="closeLog">Close</button>
-    </div>
-    <ul id="logList"></ul>
-    <div class="watermark">Made with Love by Vesni & Forca Team</div>
-  </aside>
+/* Grid & Cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px;}
+.card{cursor:pointer;transition:transform .2s;display:flex;flex-direction:column;}
+.card:hover{transform:scale(1.05);}
+.card img{width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:8px;}
+.card p{font-weight:600;margin-bottom:4px;}
+.card small{color:#b3b3b3;font-size:12px;}
+.heart-btn{font-size:18px;color:#ccc;margin-top:auto;cursor:pointer;}
+.heart-btn.liked{color:#1ed760;}
 
-  <!-- Online Counter -->
-  <div class="online-counter"><span class="dot"></span><span id="onlineNum">0</span> online</div>
+/* Player Bar – FULL WIDTH */
+.player-bar{height:90px;background:#181818;display:flex;align-items:center;padding:0 16px;gap:16px;border-top:1px solid #282828;position:relative;z-index:6;}
+.player-left,.player-right{width:240px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.now-playing p{margin:0;font-size:14px;}
+.now-playing p:last-child{font-size:12px;color:#b3b3b3;}
+.player-center{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;}
+.player-controls button{font-size:20px;padding:8px;border-radius:50%;transition:background .2s;}
+.player-controls button:hover{background:#282828;}
+.progress-track{height:4px;background:#404040;border-radius:2px;position:relative;cursor:pointer;flex:1;margin:0 8px;}
+.progress-fill{height:100%;background:#1ed760;border-radius:2px;width:0;transition:width .1s;}
+.progress-bar{font-size:11px;color:#b3b3b3;display:flex;align-items:center;gap:8px;width:100%;max-width:500px;}
+.volume-wrapper{display:flex;align-items:center;gap:6px;}
+#volumeSlider{width:90px;height:4px;background:#535353;border-radius:2px;appearance:none;}
+#volumeSlider::-webkit-slider-thumb{appearance:none;width:12px;height:12px;background:#1ed760;border-radius:50%;}
 
-  <!-- Hidden YouTube Player -->
-  <div id="ytPlayerContainer" style="position:absolute; left:-9999px;"></div>
+/* Log Panel – Clean Slim Sidebar */
+.log-panel{
+  position:fixed;right:0;top:0;width:300px;height:100%;background:#000;border-left:1px solid #282828;
+  transition:right .3s ease;z-index:100;padding:16px;overflow-y:auto;display:flex;flex-direction:column;
+}
+.log-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.log-header h4{font-size:16px;font-weight:600;}
+#closeLog{font-size:20px;color:#aaa;}
+#logList{flex:1;list-style:none;overflow-y:auto;}
+#logList li{
+  margin-bottom:12px;padding:10px 12px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:8px;
+  background:#1a1a1a;border:1px solid #333;
+}
+#logList li::before{content:'●';font-size:8px;color:#1ed760;}
+.log-add{background:#1a2a1a;border-color:#1ed760;}
+.log-update{background:#2a1a1a;border-color:#ff9800;}
+.log-remove{background:#2a1a1a;border-color:#f44336;}
+.watermark{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:#555;}
 
-</div>
+/* Online Counter */
+.online-counter{
+  position:fixed;bottom:110px;right:20px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);
+  padding:6px 12px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:6px;z-index:10;
+}
+.dot{width:10px;height:10px;background:#1ed760;border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
 
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script src="script.js"></script>
-</body>
-</html>
+/* Responsive */
+@media (max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s;}
+  .main-wrapper{margin-left:0;}
+  .header{flex-wrap:wrap;gap:8px;}
+  .search-bar{width:200px;}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+  .log-panel{width:100%;right:-100%;border-left:none;}
+}
