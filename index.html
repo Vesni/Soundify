@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Soundify – Your Music Universe</title>
+  <title>Soundify – Global Music</title>
   <link rel="stylesheet" href="styles.css"/>
-  <link rel="icon" href="favicon.ico" type="image/ico"/>
+  <link rel="icon" href="favicon.ico" type="image/x-icon"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
@@ -16,9 +16,10 @@
     <div class="logo"><img src="logo.png" alt="Soundify"/></div>
     <ul class="nav-menu">
       <li><a href="#" data-page="home">Home</a></li>
+      <li><a href="#" data-page="india">India</a></li>
+      <li><a href="#" data-page="japan">Japan</a></li>
       <li><a href="#" data-page="search">Search</a></li>
-      <li><a href="#" data-page="library">Your Library</a></li>
-      <li><a href="#" data-page="recommendations">Recommendations</a></li>
+      <li><a href="#" data-page="library">Library</a></li>
       <li><a href="#" data-page="queue">Queue</a></li>
     </ul>
     <div class="playlist-section">
@@ -28,14 +29,14 @@
     </div>
   </nav>
 
-  <!-- Main Content + Player + Log Panel -->
+  <!-- Main Content + Player + Log -->
   <div class="main-wrapper">
     <main class="main-content">
       <header class="header">
         <button class="nav-toggle" id="navToggle">Menu</button>
-        <input type="text" placeholder="Search songs, artists, playlists…" class="search-bar" id="searchBar"/>
+        <input type="text" placeholder="Search 200+ songs…" class="search-bar" id="searchBar"/>
         <div class="header-right">
-          <button class="upgrade-btn" id="upgradeBtn">Upgrade</button>
+          <button class="upgrade-btn" id="upgradeBtn">Premium</button>
           <div id="authContainer"></div>
           <div class="profile" id="profile" style="display:none;">
             <img id="profileImg" src="" alt=""/>
@@ -47,7 +48,7 @@
       <section class="page" id="pageContainer"></section>
     </main>
 
-    <!-- Fixed Player Bar -->
+    <!-- Player Bar (CLEAN & SMOOTH) -->
     <footer class="player-bar">
       <div class="player-left">
         <img id="nowCover" src="" alt=""/>
@@ -58,11 +59,11 @@
       </div>
       <div class="player-center">
         <div class="player-controls">
+          <button id="shuffleBtn">Shuffle</button>
           <button id="prevBtn">Previous</button>
           <button id="playPauseBtn">Play</button>
           <button id="nextBtn">Next</button>
-          <button id="shuffleBtn">🔀</button>
-          <button id="repeatBtn">🔁</button>
+          <button id="repeatBtn">Repeat</button>
         </div>
         <div class="progress-bar">
           <span id="progressTime">0:00</span>
@@ -73,19 +74,15 @@
         </div>
       </div>
       <div class="player-right">
-        <button id="visualizerBtn">Visualizer</button>
-        <button id="bassBtn">Bass Boost</button>
-        <button id="shareBtn">Share</button>
-        <button id="sleepBtn">Sleep Timer</button>
         <div class="volume-wrapper">
-          <button id="volumeBtn">Volume</button>
+          <span>Volume</span>
           <input type="range" id="volumeSlider" min="0" max="100" value="80"/>
         </div>
       </div>
     </footer>
   </div>
 
-  <!-- Log Panel (Slim, Clean) -->
+  <!-- Log Panel -->
   <aside class="log-panel" id="logPanel">
     <div class="log-header">
       <h4>Update Log</h4>
@@ -100,7 +97,6 @@
 
   <!-- Hidden YouTube Player -->
   <div id="ytPlayerContainer" style="position:absolute; left:-9999px;"></div>
-
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
