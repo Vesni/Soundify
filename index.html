@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Soundify – Your Music Universe</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link rel="icon" href="favicon.ico" type="image/ico"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  ＜meta charset=" icons="UTF-8" />
+  ＜meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  ＜title>Soundify – Your Music Universe</title>
+  ＜link rel="stylesheet" href="styles.css"/>
+  ＜link rel="icon" href="favicon.ico" type="image/x-icon"/>
+  ＜link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
-<div class="app" id="app">
+<div class="app">
 
   <!-- Sidebar -->
-  <nav class="sidebar" id="sidebar">
-    <div class="logo">
-      <img src="logo.png" alt="Soundify" style="height:40px;"/>
-    </div>
+  <nav class="sidebar">
+    <div class="logo"><img src="logo.png" alt="Soundify"/></div>
     <ul class="nav-menu">
       <li><a href="#" data-page="home">Home</a></li>
       <li><a href="#" data-page="search">Search</a></li>
@@ -24,35 +22,32 @@
     <div class="playlist-section">
       <h3>Playlists</h3>
       <ul id="playlist-list"></ul>
+      <button id="newPlaylistBtn">+ Create Playlist</button>
     </div>
   </nav>
 
   <!-- Main -->
-  <main class="main-content" id="main-content">
-
-    <!-- Header -->
+  <main class="main-content">
     <header class="header">
       <button class="nav-toggle" id="navToggle">Menu</button>
-      <input type="text" placeholder="Search songs, artists…" class="search-bar" id="searchBar"/>
+      <input type="text" placeholder="Search songs, artists, playlists…" class="search-bar" id="searchBar"/>
       <div class="header-right">
         <button class="upgrade-btn" id="upgradeBtn">Upgrade</button>
         <div id="authContainer"></div>
         <div class="profile" id="profile" style="display:none;">
-          <img id="profileImg" src="" alt="Profile"/>
+          <img id="profileImg" src="" alt=""/>
           <span id="profileName"></span>
         </div>
       </div>
     </header>
 
-    <!-- Page Container -->
     <section class="page" id="pageContainer"></section>
-
   </main>
 
-  <!-- Player Bar -->
-  <footer class="player-bar" id="playerBar">
+  <!-- Player -->
+  <footer class="player-bar">
     <div class="player-left">
-      <img id="nowCover" src="https://via.placeholder.com/56" alt=""/>
+      <img id="nowCover" src="" alt=""/>
       <div class="now-playing">
         <p id="nowTitle">—</p>
         <p id="nowArtist">—</p>
@@ -62,7 +57,7 @@
       <div class="player-controls">
         <button id="prevBtn">Previous</button>
         <button id="playPauseBtn">Play</button>
-        <button id="nextBtn">Next</button>
+        <button(Item) id="nextBtn">Next</button>
       </div>
       <div class="progress-bar">
         <span id="progressTime">0:00</span>
@@ -84,24 +79,18 @@
     </div>
   </footer>
 
-  <!-- Hidden YouTube iframe -->
+  <!-- Hidden YouTube Player -->
   <div id="ytPlayerContainer" style="position:absolute; left:-9999px;"></div>
 
-  <!-- Update Log Panel -->
+  <!-- Update Log -->
   <aside class="log-panel" id="logPanel">
-    <div class="log-header">
-      <h4>Update Log</h4>
-      <button id="closeLog">Close</button>
-    </div>
+    <div class="log-header"><h4>Update Log</h4><button id="closeLog">Close</button></div>
     <ul id="logList"></ul>
     <div class="watermark">Made with Love by Vesni & Forca Team</div>
   </aside>
 
-  <!-- Live Online Counter -->
-  <div class="online-counter" id="onlineCounter">
-    <span class="dot"></span>
-    <span id="onlineNum">0</span> online
-  </div>
+  <!-- Online Counter -->
+  <div class="online-counter"><span class="dot"></span><span id="onlineNum">0</span> online</div>
 
 </div>
 
